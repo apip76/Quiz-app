@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMaster - Penilaian Harian Online</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="landing-body">
+    <!-- Particle Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-brain"></i>
+                <span>QuizMaster</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Fitur</a>
+                <a href="#how">Cara Kerja</a>
+                <button class="btn-nav" onclick="showLoginModal('guru')">
+                    <i class="fas fa-chalkboard-teacher"></i> Masuk Guru
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">🚀 Platform Penilaian #1 Indonesia</div>
+            <h1>Buat Kuis Interaktif<br><span class="gradient-text">Dalam Hitungan Menit</span></h1>
+            <p class="hero-desc">Platform penilaian harian dengan AI-powered question generator. Pilihan Ganda, Benar/Salah, dan Isian Anagram dalam satu tempat.</p>
+            <div class="hero-buttons">
+                <button class="btn-primary btn-large" onclick="showLoginModal('guru')">
+                    <i class="fas fa-plus-circle"></i> Buat Kuis Sekarang
+                </button>
+                <button class="btn-secondary btn-large" onclick="showJoinModal()">
+                    <i class="fas fa-gamepad"></i> Ikut Kuis
+                </button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalQuizzes">0</div>
+                    <div class="stat-label">Kuis Dibuat</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalPlayers">0</div>
+                    <div class="stat-label">Peserta</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalQuestions">0</div>
+                    <div class="stat-label">Soal</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="floating-card card-1">
+                <div class="mini-question">
+                    <span class="q-type pg">PG</span>
+                    <span>Pilihan Ganda</span>
+                </div>
+            </div>
+            <div class="floating-card card-2">
+                <div class="mini-question">
+                    <span class="q-type bs">B/S</span>
+                    <span>Benar / Salah</span>
+                </div>
+            </div>
+            <div class="floating-card card-3">
+                <div class="mini-question">
+                    <span class="q-type is">AG</span>
+                    <span>Anagram</span>
+                </div>
+            </div>
+            <div class="floating-card card-4">
+                <div class="mini-question">
+                    <span class="q-type ai">AI</span>
+                    <span>AI Generator</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">Fitur <span class="gradient-text">Unggulan</span></h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                    <h3>AI Question Generator</h3>
+                    <p>Generate soal otomatis dengan AI. Cukup masukkan topik dan jumlah soal yang diinginkan.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-random"></i></div>
+                    <h3>Soal Teracak</h3>
+                    <p>Setiap peserta mendapat urutan soal dan opsi jawaban yang berbeda secara otomatis.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-puzzle-piece"></i></div>
+                    <h3>Anagram Quiz</h3>
+                    <p>Isian singkat dengan konsep anagram yang membuat kuis lebih menantang dan seru.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-trophy"></i></div>
+                    <h3>Skor & Peringkat</h3>
+                    <p>Lihat peringkat real-time dan download hasil dalam format Excel.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-share-alt"></i></div>
+                    <h3>Share Link</h3>
+                    <p>Bagikan kuis dengan link unik. Peserta bisa langsung mengerjakan tanpa registrasi.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <h3>Responsive</h3>
+                    <p>Bisa diakses dari perangkat apapun - desktop, tablet, maupun smartphone.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="how-section">
+        <div class="container">
+            <h2 class="section-title">Cara <span class="gradient-text">Kerja</span></h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Login Sebagai Guru</h3>
+                    <p>Masuk dengan akun Google atau buat akun baru untuk mulai membuat kuis.</p>
+                </div>
+                <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Buat & Kustomisasi</h3>
+                    <p>Pilih mata pelajaran, buat soal manual atau generate dengan AI.</p>
+                </div>
+                <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Bagikan & Pantau</h3>
+                    <p>Bagikan link kuis dan pantau hasil peserta secara real-time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+            <div class="modal-header">
+                <i class="fas fa-chalkboard-teacher modal-icon"></i>
+                <h2>Masuk Sebagai Guru</h2>
+                <p>Buat dan kelola kuis untuk peserta didik Anda</p>
+            </div>
+            <div class="modal-body">
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="loginEmail" placeholder="guru@sekolah.id">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="loginPassword" placeholder="Minimal 6 karakter">
+                    </div>
+                    <button class="btn-primary btn-full" onclick="loginGuru()">
+                        <i class="fas fa-sign-in-alt"></i> Masuk
+                    </button>
+                    <div class="divider"><span>atau</span></div>
+                    <button class="btn-google btn-full" onclick="loginGoogle()">
+                        <i class="fab fa-google"></i> Masuk dengan Google
+                    </button>
+                    <p class="switch-form">Belum punya akun? <a href="#" onclick="toggleAuthForm()">Daftar disini</a></p>
+                </div>
+                <div id="registerForm" style="display:none">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Nama Lengkap</label>
+                        <input type="text" id="regName" placeholder="Nama lengkap Anda">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="regEmail" placeholder="guru@sekolah.id">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="regPassword" placeholder="Minimal 6 karakter">
+                    </div>
+                    <button class="btn-primary btn-full" onclick="registerGuru()">
+                        <i class="fas fa-user-plus"></i> Daftar
+                    </button>
+                    <div class="divider"><span>atau</span></div>
+                    <button class="btn-google btn-full" onclick="loginGoogle()">
+                        <i class="fab fa-google"></i> Daftar dengan Google
+                    </button>
+                    <p class="switch-form">Sudah punya akun? <a href="#" onclick="toggleAuthForm()">Masuk disini</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Quiz Modal -->
+    <div class="modal-overlay" id="joinModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('joinModal')">&times;</button>
+            <div class="modal-header">
+                <i class="fas fa-gamepad modal-icon"></i>
+                <h2>Ikut Kuis</h2>
+                <p>Masukkan kode kuis yang diberikan guru Anda</p>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i> Kode Kuis</label>
+                    <input type="text" id="quizCode" placeholder="Masukkan kode kuis" maxlength="8" style="text-transform: uppercase; text-align:center; font-size:1.5rem; letter-spacing:5px;">
+                </div>
+                <button class="btn-primary btn-full" onclick="joinQuiz()">
+                    <i class="fas fa-play"></i> Mulai Kuis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const quizSnap = await db.collection('quizzes').get();
+                document.getElementById('totalQuizzes').textContent = quizSnap.size;
+                
+                let totalQ = 0;
+                quizSnap.forEach(doc => {
+                    const d = doc.data();
+                    totalQ += (d.questions || []).length;
+                });
+                document.getElementById('totalQuestions').textContent = totalQ;
+
+                const resultSnap = await db.collection('results').get();
+                document.getElementById('totalPlayers').textContent = resultSnap.size;
+            } catch(e) {
+                console.log('Stats load error:', e);
+            }
+        }
+        loadStats();
+
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+        function showJoinModal() {
+            document.getElementById('joinModal').classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function toggleAuthForm() {
+            const login = document.getElementById('loginForm');
+            const reg = document.getElementById('registerForm');
+            if (login.style.display === 'none') {
+                login.style.display = 'block';
+                reg.style.display = 'none';
+            } else {
+                login.style.display = 'none';
+                reg.style.display = 'block';
+            }
+        }
+
+        async function joinQuiz() {
+            const code = document.getElementById('quizCode').value.trim().toUpperCase();
+            if (!code) { showToast('Masukkan kode kuis!', 'error'); return; }
+            
+            try {
+                const snap = await db.collection('quizzes').where('code', '==', code).get();
+                if (snap.empty) {
+                    showToast('Kode kuis tidak ditemukan!', 'error');
+                    return;
+                }
+                const quizId = snap.docs[0].id;
+                window.location.href = `quiz.html?id=${quizId}`;
+            } catch(e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Enter key
+        document.getElementById('quizCode')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') joinQuiz();
+        });
+    </script>
+</body>
+</html>
