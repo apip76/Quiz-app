@@ -10,382 +10,315 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         *{box-sizing:border-box}body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;margin:0}
         .sb::-webkit-scrollbar{width:5px;height:5px}.sb::-webkit-scrollbar-track{background:#f1f5f9;border-radius:9px}.sb::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9px}
         .fade{animation:fadeIn .3s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        .tslide{animation:tslide .4s ease-out}@keyframes tslide{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        .tslide{animation:ts .4s ease-out}@keyframes ts{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
         .letter-btn{transition:all .12s ease}.letter-btn:active{transform:scale(.9)}
         .dM{background:#dcfce7;color:#166534;border:1px solid #86efac}.dS{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}.dH{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
         .pbar{transition:width .5s ease}.cbar{transition:height .6s ease}
-        .modal-bg{background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
-        .stat-c{transition:transform .2s,box-shadow .2s}.stat-c:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.1)}
-        .timer-pulse{animation:tpulse 1s infinite}@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.6}}
+        .mbg{background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+        .sc{transition:transform .2s,box-shadow .2s}.sc:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.1)}
+        .tp{animation:tp 1s infinite}@keyframes tp{0%,100%{opacity:1}50%{opacity:.6}}
+        input[type=range]{-webkit-appearance:none;height:6px;border-radius:5px;outline:none}
+        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+        .range-easy{background:linear-gradient(to right,#22c55e var(--v),#e2e8f0 var(--v))}
+        .range-easy::-webkit-slider-thumb{background:#22c55e}
+        .range-med{background:linear-gradient(to right,#eab308 var(--v),#e2e8f0 var(--v))}
+        .range-med::-webkit-slider-thumb{background:#eab308}
+        .range-hard{background:linear-gradient(to right,#ef4444 var(--v),#e2e8f0 var(--v))}
+        .range-hard::-webkit-slider-thumb{background:#ef4444}
+        .step-active{background:linear-gradient(135deg,#15803d,#22c55e);color:white;box-shadow:0 4px 15px rgba(34,197,94,.3)}
+        .step-done{background:#dcfce7;color:#166534;border:1px solid #86efac}
+        .step-pending{background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0}
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-800 bg-gradient-to-br from-slate-50 to-slate-100">
 
 <div id="toast-c" class="fixed top-4 right-4 z-[9999] space-y-2 max-w-sm"></div>
-<div id="loading-ov" class="hidden fixed inset-0 z-[9998] bg-white/80 backdrop-blur-sm flex items-center justify-center">
-    <div class="text-center"><div class="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div><p id="load-txt" class="text-sm font-semibold text-slate-600">Memuat...</p></div>
-</div>
+<div id="lov" class="hidden fixed inset-0 z-[9998] bg-white/80 backdrop-blur-sm flex items-center justify-center"><div class="text-center"><div class="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div><p id="ltx" class="text-sm font-semibold text-slate-600">Memuat...</p></div></div>
 
-<!-- MODAL EDIT SOAL -->
-<div id="modal-edit" class="hidden fixed inset-0 z-[9997] modal-bg flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-        <div class="bg-gradient-to-r from-brand-800 to-brand-700 p-4 text-white flex items-center justify-between shrink-0">
-            <h3 class="font-extrabold text-base">✏️ Editor Soal — Edit Sebelum Publish</h3>
-            <button onclick="closeEditor()" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center text-lg transition">✕</button>
-        </div>
-        <div class="p-4 border-b bg-slate-50 flex flex-wrap items-center justify-between gap-2 shrink-0">
-            <div class="flex items-center gap-2 text-xs">
-                <span class="font-bold text-slate-600">Total: <span id="ed-total" class="text-brand-800">0</span> soal</span>
-                <button onclick="addQuestion()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg transition">+ Tambah Soal</button>
-            </div>
-            <button onclick="saveEdits()" class="px-4 py-2 bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold rounded-lg shadow transition">💾 Simpan Perubahan</button>
-        </div>
-        <div id="ed-list" class="flex-1 overflow-y-auto p-4 space-y-3 sb"></div>
-    </div>
-</div>
+<!-- MODAL EDIT -->
+<div id="m-edit" class="hidden fixed inset-0 z-[9997] mbg flex items-center justify-center p-4">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+<div class="bg-gradient-to-r from-brand-800 to-brand-700 p-4 text-white flex items-center justify-between shrink-0"><h3 class="font-extrabold text-sm">✏️ Editor Soal</h3><button onclick="EL('m-edit').classList.add('hidden')" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center text-lg">✕</button></div>
+<div class="p-3 border-b bg-slate-50 flex flex-wrap items-center justify-between gap-2 shrink-0"><div class="flex items-center gap-2 text-xs"><span class="font-bold text-slate-600">Total: <span id="ed-t" class="text-brand-800">0</span></span><button onclick="addQ()" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg transition text-xs">+ Tambah</button></div><button onclick="saveEd()" class="px-4 py-1.5 bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold rounded-lg shadow transition text-xs">💾 Simpan</button></div>
+<div id="ed-l" class="flex-1 overflow-y-auto p-4 space-y-2 sb"></div>
+</div></div>
 
-<!-- MODAL DETAIL EDIT SINGLE -->
-<div id="modal-single" class="hidden fixed inset-0 z-[9998] modal-bg flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto sb">
-        <div class="bg-ocean-700 p-4 text-white flex items-center justify-between sticky top-0 z-10">
-            <h3 class="font-bold text-sm">✏️ Edit Soal #<span id="se-num">1</span></h3>
-            <button onclick="closeSingle()" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition">✕</button>
-        </div>
-        <div class="p-5 space-y-3" id="se-form">
-            <div><label class="block text-xs font-bold text-slate-600 mb-1">Bab/Topik</label><input type="text" id="se-bab" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div>
-            <div class="grid grid-cols-2 gap-3">
-                <div><label class="block text-xs font-bold text-slate-600 mb-1">Tipe Soal</label><select id="se-type" onchange="toggleSingleType()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-brand-500 outline-none"><option value="PG">Pilihan Ganda (PG)</option><option value="BS">Benar/Salah (BS)</option><option value="AN">Susun Kata (AN)</option></select></div>
-                <div><label class="block text-xs font-bold text-slate-600 mb-1">Kesulitan</label><select id="se-diff" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-brand-500 outline-none"><option value="mudah">Mudah</option><option value="sedang">Sedang</option><option value="sulit">Sulit</option></select></div>
-            </div>
-            <div><label class="block text-xs font-bold text-slate-600 mb-1">Pertanyaan</label><textarea id="se-q" rows="3" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-y"></textarea></div>
-            <div id="se-pg-opts">
-                <label class="block text-xs font-bold text-slate-600 mb-1">Opsi Jawaban</label>
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-slate-200 flex items-center justify-center text-xs font-bold">A</span><input type="text" id="se-oa" class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                    <div class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-slate-200 flex items-center justify-center text-xs font-bold">B</span><input type="text" id="se-ob" class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                    <div class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-slate-200 flex items-center justify-center text-xs font-bold">C</span><input type="text" id="se-oc" class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                    <div class="flex items-center gap-2"><span class="w-6 h-6 rounded bg-slate-200 flex items-center justify-center text-xs font-bold">D</span><input type="text" id="se-od" class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                </div>
-                <label class="block text-xs font-bold text-slate-600 mt-2 mb-1">Jawaban Benar</label>
-                <select id="se-ans-pg" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-brand-500 outline-none">
-                    <option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>
-                </select>
-            </div>
-            <div id="se-bs-opts" class="hidden">
-                <label class="block text-xs font-bold text-slate-600 mb-1">Jawaban Benar</label>
-                <select id="se-ans-bs" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-brand-500 outline-none">
-                    <option value="0">BENAR</option><option value="1">SALAH</option>
-                </select>
-            </div>
-            <div id="se-an-opts" class="hidden space-y-2">
-                <div><label class="block text-xs font-bold text-slate-600 mb-1">Kata Jawaban (huruf besar, tanpa spasi)</label><input type="text" id="se-ans-an" placeholder="Contoh: MAKKIYAH" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 outline-none uppercase font-mono tracking-wider"></div>
-                <div><label class="block text-xs font-bold text-slate-600 mb-1">Huruf Acak (otomatis dari jawaban)</label><input type="text" id="se-letters" readonly class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-slate-50 font-mono"></div>
-                <p class="text-[10px] text-slate-500">💡 Huruf acak akan otomatis di-generate dari kata jawaban saat disimpan.</p>
-            </div>
-            <div><label class="block text-xs font-bold text-slate-600 mb-1">Pembahasan</label><textarea id="se-disc" rows="3" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-y"></textarea></div>
-            <button onclick="saveSingle()" class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow transition mt-2">💾 Simpan Soal Ini</button>
-        </div>
-    </div>
-</div>
+<!-- MODAL SINGLE EDIT -->
+<div id="m-se" class="hidden fixed inset-0 z-[9998] mbg flex items-center justify-center p-4">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto sb">
+<div class="bg-ocean-700 p-4 text-white flex items-center justify-between sticky top-0 z-10"><h3 class="font-bold text-sm">✏️ Soal #<span id="sn">1</span></h3><button onclick="EL('m-se').classList.add('hidden')" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center">✕</button></div>
+<div class="p-5 space-y-3">
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Bab</label><input type="text" id="sb" class="w-full px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div>
+<div class="grid grid-cols-2 gap-3"><div><label class="block text-[11px] font-bold text-slate-600 mb-1">Tipe</label><select id="st" onchange="tgST()" class="w-full px-3 py-2 rounded-lg border text-sm bg-white focus:ring-2 focus:ring-brand-500 outline-none"><option value="PG">PG</option><option value="BS">BS</option><option value="AN">AN</option></select></div><div><label class="block text-[11px] font-bold text-slate-600 mb-1">Kesulitan</label><select id="sd" class="w-full px-3 py-2 rounded-lg border text-sm bg-white focus:ring-2 focus:ring-brand-500 outline-none"><option value="mudah">Mudah</option><option value="sedang">Sedang</option><option value="sulit">Sulit</option></select></div></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Pertanyaan</label><textarea id="sq" rows="3" class="w-full px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-y"></textarea></div>
+<div id="spg"><label class="block text-[11px] font-bold text-slate-600 mb-1">Opsi</label><div class="space-y-1.5"><div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-slate-200 flex items-center justify-center text-[10px] font-bold">A</span><input type="text" id="soa" class="flex-1 px-3 py-1.5 rounded-lg border text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div><div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-slate-200 flex items-center justify-center text-[10px] font-bold">B</span><input type="text" id="sob" class="flex-1 px-3 py-1.5 rounded-lg border text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div><div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-slate-200 flex items-center justify-center text-[10px] font-bold">C</span><input type="text" id="soc" class="flex-1 px-3 py-1.5 rounded-lg border text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div><div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-slate-200 flex items-center justify-center text-[10px] font-bold">D</span><input type="text" id="sod" class="flex-1 px-3 py-1.5 rounded-lg border text-sm focus:ring-2 focus:ring-brand-500 outline-none"></div></div><label class="block text-[11px] font-bold text-slate-600 mt-2 mb-1">Jawaban</label><select id="sap" class="w-full px-3 py-2 rounded-lg border text-sm bg-white"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div>
+<div id="sbs" class="hidden"><label class="block text-[11px] font-bold text-slate-600 mb-1">Jawaban</label><select id="sab" class="w-full px-3 py-2 rounded-lg border text-sm bg-white"><option value="0">BENAR</option><option value="1">SALAH</option></select></div>
+<div id="san" class="hidden space-y-2"><div><label class="block text-[11px] font-bold text-slate-600 mb-1">Kata Jawaban (huruf besar)</label><input type="text" id="saa" placeholder="MAKKIYAH" class="w-full px-3 py-2 rounded-lg border text-sm uppercase font-mono tracking-wider focus:ring-2 focus:ring-brand-500 outline-none"></div><p class="text-[9px] text-slate-500">💡 Huruf acak otomatis dari jawaban.</p></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Pembahasan</label><textarea id="sdi" rows="2" class="w-full px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-y"></textarea></div>
+<button onclick="svSe()" class="w-full py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow transition">💾 Simpan</button>
+</div></div></div>
 
 <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-900 text-white shadow-xl border-b-4 border-gold-500 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="goHome()">
-            <div class="w-10 h-10 rounded-xl bg-gold-400 text-brand-900 flex items-center justify-center font-extrabold text-lg shadow-md border-2 border-white/50">📝</div>
-            <div><h1 class="text-sm sm:text-base font-extrabold leading-tight">Platform Kuis Interaktif</h1><p class="text-[10px] text-gold-400 font-semibold" id="hdr-sub">Evaluasi Pembelajaran — Custom CSV</p></div>
-        </div>
-        <div class="flex items-center gap-2">
-            <!-- TIMER -->
-            <div id="timer-box" class="hidden items-center gap-1.5 bg-rose-600/90 px-3 py-1.5 rounded-lg border border-rose-400/50 text-xs">
-                <span class="text-white/70">⏱️</span>
-                <span id="timer-display" class="font-mono font-extrabold text-white text-sm tracking-wider">00:00:00</span>
-            </div>
-            <div id="hdr-info" class="hidden items-center gap-2 bg-brand-900/60 px-3 py-1.5 rounded-lg border border-brand-700/50 text-xs">
-                <img id="hdr-av" src="" class="w-5 h-5 rounded-full border border-white/50 hidden">
-                <span class="text-emerald-300 font-medium" id="hdr-name">User</span>
-                <span class="text-slate-400">•</span>
-                <span class="text-gold-400 font-bold" id="hdr-role">-</span>
-            </div>
-            <button id="btn-out" class="hidden px-3 py-1.5 bg-rose-500/80 hover:bg-rose-600 text-white text-xs font-bold rounded-lg transition border border-rose-400/50">Keluar</button>
-        </div>
-    </div>
-</header>
+<div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+<div class="flex items-center gap-3 cursor-pointer" onclick="goH()"><div class="w-10 h-10 rounded-xl bg-gold-400 text-brand-900 flex items-center justify-center font-extrabold text-lg shadow-md border-2 border-white/50">📝</div><div><h1 class="text-sm sm:text-base font-extrabold leading-tight">Platform Kuis Interaktif</h1><p class="text-[10px] text-gold-400 font-semibold" id="hsub">Evaluasi Pembelajaran — Custom CSV</p></div></div>
+<div class="flex items-center gap-2">
+<div id="tmr" class="hidden items-center gap-1.5 bg-rose-600/90 px-3 py-1.5 rounded-lg border border-rose-400/50 text-xs"><span class="text-white/70">⏱️</span><span id="tmd" class="font-mono font-extrabold text-white text-sm tracking-wider">00:00:00</span></div>
+<div id="hui" class="hidden items-center gap-2 bg-brand-900/60 px-3 py-1.5 rounded-lg border border-brand-700/50 text-xs"><img id="hav" src="" class="w-5 h-5 rounded-full border border-white/50 hidden"><span class="text-emerald-300 font-medium" id="hnm">User</span><span class="text-slate-400">•</span><span class="text-gold-400 font-bold" id="hrl">-</span></div>
+<button id="blo" class="hidden px-3 py-1.5 bg-rose-500/80 hover:bg-rose-600 text-white text-xs font-bold rounded-lg transition border border-rose-400/50">Keluar</button>
+</div></div></header>
 
 <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col">
 
 <!-- LANDING -->
-<div id="scr-land" class="my-auto max-w-xl w-full mx-auto fade">
-    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/80">
-        <div class="bg-gradient-to-br from-brand-800 via-brand-700 to-emerald-700 p-8 sm:p-10 text-white text-center relative overflow-hidden">
-            <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle,white 1px,transparent 1px);background-size:20px 20px"></div>
-            <div class="relative z-10"><div class="text-5xl mb-3">🎓</div><h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Platform Kuis Interaktif</h2><p class="text-brand-100 text-sm mt-2">Buat kuis dari CSV, atur waktu, bagikan link, dan analisis soal otomatis.</p></div>
-        </div>
-        <div class="p-6 sm:p-8 space-y-4">
-            <button id="btn-guru" class="w-full py-4 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 text-white font-bold rounded-2xl shadow-lg transition flex items-center gap-4 px-5 group">
-                <span class="text-3xl group-hover:scale-110 transition-transform">👨‍🏫</span>
-                <div class="text-left flex-1"><span class="block font-extrabold">Masuk sebagai Guru</span><span class="block text-xs text-brand-200 font-normal mt-0.5">Login Gmail → Upload CSV → Edit Soal → Atur Waktu → Publish</span></div><span class="text-white/60 text-xl">→</span>
-            </button>
-            <button id="btn-siswa" class="w-full py-4 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-2xl border-2 border-slate-200 hover:border-slate-300 transition flex items-center gap-4 px-5 group">
-                <span class="text-3xl group-hover:scale-110 transition-transform">👨‍🎓</span>
-                <div class="text-left flex-1"><span class="block font-extrabold">Masuk sebagai Siswa</span><span class="block text-xs text-slate-500 font-normal mt-0.5">Masukkan kode kuis dari guru</span></div><span class="text-slate-400 text-xl">→</span>
-            </button>
-            <div class="border-t pt-4"><p class="text-xs text-slate-500 text-center mb-2 font-semibold">Punya kode kuis?</p><div class="flex gap-2"><input type="text" id="land-code" placeholder="Kode kuis..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm font-mono uppercase tracking-wider"><button id="land-join" class="px-5 py-2.5 bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold rounded-xl shadow transition text-sm">Gabung</button></div></div>
-        </div>
-    </div>
-</div>
+<div id="s-land" class="my-auto max-w-xl w-full mx-auto fade">
+<div class="bg-white rounded-3xl shadow-2xl overflow-hidden border">
+<div class="bg-gradient-to-br from-brand-800 via-brand-700 to-emerald-700 p-8 sm:p-10 text-white text-center relative overflow-hidden"><div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle,white 1px,transparent 1px);background-size:20px 20px"></div><div class="relative z-10"><div class="text-5xl mb-3">🎓</div><h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Platform Kuis Interaktif</h2><p class="text-brand-100 text-sm mt-2">Buat kuis dari CSV + AI Generator, atur waktu, analisis & export Excel.</p></div></div>
+<div class="p-6 sm:p-8 space-y-4">
+<button id="bg" class="w-full py-4 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 text-white font-bold rounded-2xl shadow-lg transition flex items-center gap-4 px-5 group"><span class="text-3xl group-hover:scale-110 transition-transform">👨‍🏫</span><div class="text-left flex-1"><span class="block font-extrabold">Masuk sebagai Guru</span><span class="block text-xs text-brand-200 font-normal mt-0.5">Login → AI Generator → Upload CSV → Edit → Publish</span></div><span class="text-white/60 text-xl">→</span></button>
+<button id="bs" class="w-full py-4 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-2xl border-2 border-slate-200 hover:border-slate-300 transition flex items-center gap-4 px-5 group"><span class="text-3xl group-hover:scale-110 transition-transform">👨‍🎓</span><div class="text-left flex-1"><span class="block font-extrabold">Masuk sebagai Siswa</span><span class="block text-xs text-slate-500 font-normal mt-0.5">Masukkan kode kuis dari guru</span></div><span class="text-slate-400 text-xl">→</span></button>
+<div class="border-t pt-4"><p class="text-xs text-slate-500 text-center mb-2 font-semibold">Punya kode?</p><div class="flex gap-2"><input type="text" id="lc" placeholder="Kode..." class="flex-1 px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-brand-500 outline-none text-sm font-mono uppercase tracking-wider"><button id="lj" class="px-5 py-2.5 bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold rounded-xl shadow transition text-sm">Gabung</button></div></div>
+</div></div></div>
 
 <!-- GURU LOGIN -->
-<div id="scr-glog" class="hidden my-auto max-w-md w-full mx-auto fade">
-    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border">
-        <div class="bg-gradient-to-r from-ocean-700 to-ocean-600 p-8 text-white text-center"><div class="text-5xl mb-3">🔐</div><h2 class="text-xl font-extrabold">Login Akun Guru</h2><p class="text-ocean-100 text-xs mt-1">Autentikasi dengan Google</p></div>
-        <div class="p-6 space-y-4">
-            <button id="btn-glog" class="w-full py-3.5 bg-white hover:bg-slate-50 border-2 border-slate-300 font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-3 hover:shadow-md">
-                <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                <span>Masuk dengan Google</span>
-            </button>
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800"><p class="font-bold mb-1">⚠️ Jika gagal:</p><p>Pastikan domain <code class="bg-amber-100 px-1 rounded">apip76.github.io</code> sudah ditambahkan di Firebase Console → Authentication → Settings → Authorized domains.</p></div>
-            <button onclick="goHome()" class="w-full py-2.5 text-slate-500 hover:text-slate-800 font-semibold text-sm transition">← Kembali</button>
-        </div>
-    </div>
-</div>
+<div id="s-glog" class="hidden my-auto max-w-md w-full mx-auto fade">
+<div class="bg-white rounded-3xl shadow-2xl overflow-hidden border">
+<div class="bg-gradient-to-r from-ocean-700 to-ocean-600 p-8 text-white text-center"><div class="text-5xl mb-3">🔐</div><h2 class="text-xl font-extrabold">Login Guru</h2></div>
+<div class="p-6 space-y-4">
+<button id="bgl" class="w-full py-3.5 bg-white hover:bg-slate-50 border-2 border-slate-300 font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-3 hover:shadow-md"><svg width="22" height="22" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Masuk dengan Google</span></button>
+<button onclick="goH()" class="w-full py-2 text-slate-500 hover:text-slate-800 font-semibold text-sm transition">← Kembali</button>
+</div></div></div>
 
 <!-- GURU DASHBOARD -->
-<div id="scr-dash" class="hidden flex-1 flex-col gap-5 fade">
-    <div class="bg-white rounded-2xl shadow-lg border overflow-hidden">
-        <div class="bg-gradient-to-r from-brand-800 to-brand-700 p-4 text-white flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3"><img id="g-av" src="" class="w-10 h-10 rounded-xl border-2 border-white/50 shadow hidden"><div><h2 class="text-base font-extrabold" id="g-name">Dashboard Guru</h2><p class="text-[11px] text-brand-200" id="g-email"></p></div></div>
-        </div>
-        <div class="flex overflow-x-auto border-b bg-slate-50 sb">
-            <button data-tab="create" class="gtab px-5 py-3 text-xs sm:text-sm font-bold border-b-[3px] border-brand-600 text-brand-800 bg-white whitespace-nowrap transition">📝 Buat Kuis</button>
-            <button data-tab="myq" class="gtab px-5 py-3 text-xs sm:text-sm font-bold border-b-[3px] border-transparent text-slate-500 whitespace-nowrap transition">📋 Kuis Saya</button>
-            <button data-tab="stats" class="gtab px-5 py-3 text-xs sm:text-sm font-bold border-b-[3px] border-transparent text-slate-500 whitespace-nowrap transition">📊 Analisis</button>
-            <button data-tab="help" class="gtab px-5 py-3 text-xs sm:text-sm font-bold border-b-[3px] border-transparent text-slate-500 whitespace-nowrap transition">🤖 Panduan CSV</button>
-        </div>
-        <div class="p-5 sm:p-7">
-
-<!-- TAB CREATE -->
-<div id="tab-create" class="gtab-c space-y-5">
-    <div class="grid md:grid-cols-2 gap-5">
-        <div class="space-y-3">
-            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">📌 Informasi Kuis</h3>
-            <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Judul Kuis *</label><input type="text" id="i-title" placeholder="Evaluasi PAI Bab 1-3" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
-            <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Mata Pelajaran</label><input type="text" id="i-subj" placeholder="PAI & Budi Pekerti" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
-            <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Kelas / Target</label><input type="text" id="i-target" placeholder="Kelas VI SD" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
-            <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Rombel (pisah koma)</label><input type="text" id="i-cls" placeholder="6A,6B,6C" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
-            <div><label class="block text-[11px] font-bold text-slate-600 mb-1">KKM</label><input type="number" id="i-kkm" value="75" min="0" max="100" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
-        </div>
-        <div class="space-y-3">
-            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">⏰ Pengaturan Waktu</h3>
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-2.5">
-                <div><label class="block text-[11px] font-bold text-amber-800 mb-1">Durasi Pengerjaan (menit) *</label><input type="number" id="i-dur" value="60" min="1" max="600" class="w-full px-3 py-2 rounded-xl border border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm bg-white"><p class="text-[10px] text-amber-600 mt-1">Kuis otomatis selesai saat waktu habis.</p></div>
-                <div><label class="block text-[11px] font-bold text-amber-800 mb-1">Tanggal & Jam Mulai (opsional)</label><input type="datetime-local" id="i-start" class="w-full px-3 py-2 rounded-xl border border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm bg-white"><p class="text-[10px] text-amber-600 mt-1">Siswa baru bisa mengerjakan setelah waktu ini.</p></div>
-                <div><label class="block text-[11px] font-bold text-amber-800 mb-1">Tanggal & Jam Selesai (opsional)</label><input type="datetime-local" id="i-end" class="w-full px-3 py-2 rounded-xl border border-amber-300 focus:ring-2 focus:ring-amber-500 outline-none text-sm bg-white"><p class="text-[10px] text-amber-600 mt-1">Siswa tidak bisa mengerjakan setelah waktu ini.</p></div>
-            </div>
-        </div>
-    </div>
-    <!-- CSV -->
-    <div class="space-y-3">
-        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">📄 Upload & Edit Soal CSV</h3>
-        <div class="grid md:grid-cols-2 gap-4">
-            <div id="csv-drop" class="border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-2xl p-8 text-center cursor-pointer transition bg-slate-50 hover:bg-brand-50/50 group" onclick="document.getElementById('csv-f').click()">
-                <input type="file" id="csv-f" accept=".csv" class="hidden">
-                <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">📂</div>
-                <p class="text-sm font-bold text-slate-600">Klik atau Drag & Drop file CSV</p>
-                <p class="text-xs text-slate-400 mt-1">Format UTF-8 • Kolom: bab, type, difficulty, question, options, answer, discussion</p>
-            </div>
-            <div>
-                <div id="csv-info" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1 mb-2">
-                    <div class="font-bold">✅ <span id="csv-fn"></span></div>
-                    <div id="csv-st" class="flex flex-wrap gap-1"></div>
-                </div>
-                <div id="csv-pv" class="bg-slate-50 border rounded-xl p-3 max-h-40 overflow-y-auto sb text-xs text-slate-500 italic">Belum ada CSV...</div>
-                <button id="btn-edit-qs" class="hidden mt-2 w-full py-2.5 bg-ocean-600 hover:bg-ocean-700 text-white font-bold rounded-xl shadow transition text-sm">✏️ Edit Soal Sebelum Publish (<span id="edit-count">0</span> soal)</button>
-            </div>
-        </div>
-    </div>
-    <div class="flex flex-wrap gap-3 pt-2 border-t">
-        <button id="btn-pub" class="px-6 py-3 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 text-white font-extrabold rounded-xl shadow-lg transition flex items-center gap-2 disabled:opacity-50">🚀 Publish & Generate Link</button>
-    </div>
-    <div id="link-box" class="hidden p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-2xl space-y-3 fade">
-        <h3 class="text-sm font-extrabold text-emerald-900">🎉 Kuis Dipublikasikan!</h3>
-        <div><label class="text-[11px] font-bold text-slate-600">Link:</label><div class="flex gap-2 mt-1"><input type="text" id="o-link" readonly class="flex-1 px-3 py-2 bg-white border border-emerald-300 rounded-lg text-xs font-mono text-emerald-800"><button onclick="copyT(EL('o-link').value)" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[10px] transition">📋</button></div></div>
-        <div><label class="text-[11px] font-bold text-slate-600">Kode:</label><div class="flex gap-2 mt-1"><input type="text" id="o-code" readonly class="w-40 px-3 py-2 bg-white border border-emerald-300 rounded-lg text-xl font-mono font-black text-emerald-800 text-center tracking-[.3em]"><button onclick="copyT(EL('o-code').value)" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[10px] transition">📋</button></div></div>
-    </div>
+<div id="s-dash" class="hidden flex-1 flex-col gap-5 fade">
+<div class="bg-white rounded-2xl shadow-lg border overflow-hidden">
+<div class="bg-gradient-to-r from-brand-800 to-brand-700 p-4 text-white flex flex-wrap items-center justify-between gap-3"><div class="flex items-center gap-3"><img id="gav" src="" class="w-10 h-10 rounded-xl border-2 border-white/50 shadow hidden"><div><h2 class="text-base font-extrabold" id="gnm">Guru</h2><p class="text-[11px] text-brand-200" id="gem"></p></div></div></div>
+<div class="flex overflow-x-auto border-b bg-slate-50 sb">
+<button data-tab="create" class="gt px-4 py-3 text-xs font-bold border-b-[3px] border-brand-600 text-brand-800 bg-white whitespace-nowrap transition">📝 Buat Kuis</button>
+<button data-tab="myq" class="gt px-4 py-3 text-xs font-bold border-b-[3px] border-transparent text-slate-500 whitespace-nowrap transition">📋 Kuis Saya</button>
+<button data-tab="stat" class="gt px-4 py-3 text-xs font-bold border-b-[3px] border-transparent text-slate-500 whitespace-nowrap transition">📊 Analisis</button>
+<button data-tab="fmt" class="gt px-4 py-3 text-xs font-bold border-b-[3px] border-transparent text-slate-500 whitespace-nowrap transition">📘 Format CSV</button>
 </div>
+<div class="p-5 sm:p-6">
+
+<!-- TAB CREATE - WIZARD STEPS -->
+<div id="tab-create" class="gtc">
+<!-- STEP INDICATORS -->
+<div class="flex items-center justify-center gap-2 mb-6">
+<button onclick="goStep(1)" id="si1" class="step-active w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</button><div class="w-8 h-0.5 bg-slate-200"></div>
+<button onclick="goStep(2)" id="si2" class="step-pending w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">2</button><div class="w-8 h-0.5 bg-slate-200"></div>
+<button onclick="goStep(3)" id="si3" class="step-pending w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">3</button><div class="w-8 h-0.5 bg-slate-200"></div>
+<button onclick="goStep(4)" id="si4" class="step-pending w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">4</button>
+</div>
+
+<!-- STEP 1: INFO + AI GENERATOR -->
+<div id="step1" class="space-y-5 fade">
+<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 1: Informasi Kuis & AI Generator</h3><p class="text-xs text-slate-500">Isi detail kuis, lalu generate prompt AI otomatis</p></div>
+<div class="grid md:grid-cols-2 gap-5">
+<div class="space-y-3 bg-white p-4 rounded-xl border">
+<h4 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">📌 Detail Kuis</h4>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Judul Kuis *</label><input type="text" id="i-title" placeholder="Evaluasi PAI Bab 1-3 Kelas 6" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Mata Pelajaran *</label><input type="text" id="i-subj" placeholder="PAI & Budi Pekerti" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Kelas *</label><input type="text" id="i-target" placeholder="Kelas VI SD" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Topik / Bab</label><textarea id="i-topics" rows="2" placeholder="Bab 1: QS. Al-Insyirah&#10;Bab 2: Asmaulhusna&#10;Bab 3: Toleransi" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm resize-y"></textarea></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Rombel (pisah koma)</label><input type="text" id="i-cls" placeholder="6A,6B,6C" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">KKM</label><input type="number" id="i-kkm" value="75" min="0" max="100" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Durasi (menit)</label><input type="number" id="i-dur" value="60" min="1" max="600" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Mulai (opsional)</label><input type="datetime-local" id="i-start" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Selesai (opsional)</label><input type="datetime-local" id="i-end" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+</div>
+</div>
+<div class="space-y-3 bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-200">
+<h4 class="text-xs font-extrabold text-purple-900 uppercase tracking-wider flex items-center gap-2">🤖 AI Prompt Generator</h4>
+<p class="text-[11px] text-purple-700">Konfigurasi di bawah, lalu klik "Generate Prompt" → copy ke AI.</p>
+<div class="grid grid-cols-3 gap-2">
+<div><label class="block text-[10px] font-bold text-purple-800 mb-1">Soal PG</label><input type="number" id="ai-pg" value="20" min="0" max="200" class="w-full px-3 py-2 rounded-lg border border-purple-300 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white text-center font-bold"></div>
+<div><label class="block text-[10px] font-bold text-purple-800 mb-1">Soal BS</label><input type="number" id="ai-bs" value="10" min="0" max="200" class="w-full px-3 py-2 rounded-lg border border-purple-300 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white text-center font-bold"></div>
+<div><label class="block text-[10px] font-bold text-purple-800 mb-1">Soal AN</label><input type="number" id="ai-an" value="10" min="0" max="200" class="w-full px-3 py-2 rounded-lg border border-purple-300 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white text-center font-bold"></div>
+</div>
+<div class="bg-white rounded-xl p-3 border border-purple-200 space-y-3">
+<h5 class="text-[11px] font-extrabold text-purple-900">📊 Distribusi Tingkat Kesulitan</h5>
+<div class="space-y-2">
+<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-emerald-700">🟢 Mudah</label><span id="pct-e-val" class="text-xs font-black text-emerald-700">30%</span></div><input type="range" id="pct-e" min="0" max="100" value="30" class="w-full range-easy" style="--v:30%" oninput="syncDiff('e')"></div>
+<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-amber-700">🟡 Sedang</label><span id="pct-m-val" class="text-xs font-black text-amber-700">40%</span></div><input type="range" id="pct-m" min="0" max="100" value="40" class="w-full range-med" style="--v:40%" oninput="syncDiff('m')"></div>
+<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-rose-700">🔴 Sulit</label><span id="pct-h-val" class="text-xs font-black text-rose-700">30%</span></div><input type="range" id="pct-h" min="0" max="100" value="30" class="w-full range-hard" style="--v:30%" oninput="syncDiff('h')"></div>
+</div>
+<div id="pct-warn" class="hidden text-[10px] text-rose-600 font-bold p-1.5 bg-rose-50 rounded-lg border border-rose-200">⚠️ Total harus 100%! Saat ini: <span id="pct-sum">100</span>%</div>
+<div class="text-center"><div class="inline-flex items-center gap-1 bg-slate-100 px-3 py-1 rounded-full"><span class="text-[10px] font-bold text-slate-600">Total:</span><span id="pct-total" class="text-sm font-black text-slate-800">100%</span></div></div>
+</div>
+<button onclick="genPrompt()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">🤖 Generate Prompt AI</button>
+<div id="prompt-box" class="hidden fade space-y-2">
+<div class="relative"><textarea id="prompt-out" rows="10" readonly class="w-full px-3 py-2 rounded-lg border border-purple-300 text-[10px] font-mono bg-white text-purple-900 resize-y sb"></textarea><button onclick="copyT(EL('prompt-out').value)" class="absolute top-2 right-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded text-[9px] transition shadow">📋 Copy</button></div>
+<div class="flex flex-wrap gap-2">
+<a id="link-chatgpt" href="#" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🟢 Buka ChatGPT</a>
+<a id="link-gemini" href="#" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🔵 Buka Gemini</a>
+<a id="link-claude" href="#" target="_blank" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🟠 Buka Claude</a>
+</div>
+<p class="text-[10px] text-purple-700 bg-purple-100 rounded-lg p-2 border border-purple-200">💡 <strong>Langkah:</strong> Copy prompt → Buka AI → Paste → Salin hasil CSV → Simpan sebagai file .csv → Upload di Step 2</p>
+</div>
+</div>
+<button onclick="goStep(2)" class="w-full py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm mt-2">Lanjut ke Step 2: Upload CSV →</button>
+</div>
+</div>
+
+<!-- STEP 2: UPLOAD CSV -->
+<div id="step2" class="hidden space-y-5 fade">
+<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 2: Upload File CSV</h3><p class="text-xs text-slate-500">Upload hasil CSV dari AI atau file CSV buatan sendiri</p></div>
+<div class="grid md:grid-cols-2 gap-5">
+<div id="csv-drop" class="border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-2xl p-10 text-center cursor-pointer transition bg-slate-50 hover:bg-brand-50/50 group" onclick="EL('csv-f').click()">
+<input type="file" id="csv-f" accept=".csv" class="hidden">
+<div class="text-5xl mb-3 group-hover:scale-110 transition-transform">📂</div>
+<p class="text-sm font-bold text-slate-600">Klik atau Drag & Drop file CSV</p>
+<p class="text-xs text-slate-400 mt-1">Format UTF-8 • 10 kolom</p>
+</div>
+<div>
+<div id="csv-info" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1 mb-3"><div class="font-bold">✅ <span id="csv-fn"></span></div><div id="csv-st" class="flex flex-wrap gap-1"></div></div>
+<div id="csv-pv" class="bg-slate-50 border rounded-xl p-3 max-h-52 overflow-y-auto sb text-xs text-slate-500 italic">Belum ada CSV...</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-3">
+<button onclick="goStep(1)" class="px-5 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-sm transition">← Kembali</button>
+<button onclick="if(PQ.length){goStep(3)}else{toast('Upload CSV dulu!','warn')}" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm">Lanjut ke Step 3: Edit Soal →</button>
+</div>
+</div>
+
+<!-- STEP 3: EDIT SOAL -->
+<div id="step3" class="hidden space-y-5 fade">
+<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 3: Review & Edit Soal</h3><p class="text-xs text-slate-500">Periksa, edit, tambah, atau hapus soal sebelum publish</p></div>
+<div class="bg-white rounded-xl border p-4">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b pb-2">
+<div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-600">Total: <span id="s3-tot" class="text-brand-800 text-sm">0</span> soal</span></div>
+<div class="flex gap-2"><button onclick="addQ()" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg text-[10px] transition">+ Tambah Soal</button></div>
+</div>
+<div id="s3-list" class="space-y-2 max-h-[400px] overflow-y-auto sb pr-1"></div>
+</div>
+<div class="flex flex-wrap gap-3">
+<button onclick="goStep(2)" class="px-5 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-sm transition">← Kembali</button>
+<button onclick="if(PQ.length){goStep(4)}else{toast('Tidak ada soal!','warn')}" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm">Lanjut ke Step 4: Publish →</button>
+</div>
+</div>
+
+<!-- STEP 4: PUBLISH -->
+<div id="step4" class="hidden space-y-5 fade">
+<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 4: Publish Kuis</h3><p class="text-xs text-slate-500">Review final dan generate link kuis</p></div>
+<div class="bg-white rounded-xl border p-5">
+<h4 class="text-sm font-extrabold text-slate-800 mb-3">📋 Ringkasan Kuis</h4>
+<div id="s4-summary" class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs"></div>
+</div>
+<div class="flex flex-wrap gap-3">
+<button onclick="goStep(3)" class="px-5 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-sm transition">← Kembali</button>
+<button id="btn-pub" class="px-6 py-3 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 text-white font-extrabold rounded-xl shadow-lg transition flex items-center gap-2 text-sm">🚀 Publish & Generate Link</button>
+</div>
+<div id="lnk-box" class="hidden p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-2xl space-y-3 fade">
+<h3 class="text-sm font-extrabold text-emerald-900">🎉 Kuis Dipublikasikan!</h3>
+<div><label class="text-[11px] font-bold text-slate-600">Link:</label><div class="flex gap-2 mt-1"><input type="text" id="o-link" readonly class="flex-1 px-3 py-2 bg-white border border-emerald-300 rounded-lg text-xs font-mono text-emerald-800"><button onclick="copyT(EL('o-link').value)" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[10px]">📋</button></div></div>
+<div><label class="text-[11px] font-bold text-slate-600">Kode:</label><div class="flex gap-2 mt-1"><input type="text" id="o-code" readonly class="w-40 px-3 py-2 bg-white border border-emerald-300 rounded-lg text-xl font-mono font-black text-emerald-800 text-center tracking-[.3em]"><button onclick="copyT(EL('o-code').value)" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[10px]">📋</button></div></div>
+</div>
+</div>
+
+</div><!-- end tab-create -->
 
 <!-- TAB MY QUIZZES -->
-<div id="tab-myq" class="gtab-c hidden"><div id="q-list" class="space-y-3"><p class="text-sm text-slate-400 italic">Memuat...</p></div></div>
+<div id="tab-myq" class="gtc hidden"><div id="ql" class="space-y-3"><p class="text-sm text-slate-400 italic">Memuat...</p></div></div>
 
 <!-- TAB ANALYTICS -->
-<div id="tab-stats" class="gtab-c hidden">
-    <div class="space-y-5">
-        <div><label class="text-xs font-bold text-slate-600 mb-1 block">Pilih Kuis:</label><select id="sel-anal" class="w-full max-w-md px-3 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-brand-500 outline-none"><option value="">-- Pilih --</option></select></div>
-        <div id="anal-box" class="hidden space-y-5 fade">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="st-ov"></div>
-            <div class="bg-white rounded-2xl border p-5"><h4 class="text-sm font-extrabold text-slate-800 mb-4">📊 Distribusi Nilai</h4><div id="sc-chart" class="flex items-end gap-1 h-40"></div><div id="sc-lbl" class="flex gap-1 mt-1 text-[9px] text-slate-500 font-semibold"></div></div>
-            <div class="bg-white rounded-2xl border p-5"><h4 class="text-sm font-extrabold text-slate-800 mb-4">🎯 Analisis Kesulitan</h4><div id="df-anal" class="grid sm:grid-cols-3 gap-3"></div></div>
-            <div class="bg-white rounded-2xl border p-5"><h4 class="text-sm font-extrabold text-slate-800 mb-4">🔍 Analisis per Soal</h4><div id="qa-box" class="space-y-2 max-h-96 overflow-y-auto sb pr-1"></div></div>
-            <div class="bg-white rounded-2xl border p-5"><h4 class="text-sm font-extrabold text-slate-800 mb-4">🏆 Peringkat Siswa</h4><div id="rank-box" class="space-y-1 max-h-72 overflow-y-auto sb"></div></div>
-        </div>
-        <div id="anal-empty" class="text-center py-10 text-slate-400"><div class="text-4xl mb-2">📈</div><p class="text-sm font-semibold">Pilih kuis untuk melihat analisis.</p></div>
-    </div>
+<div id="tab-stat" class="gtc hidden">
+<div class="space-y-5">
+<div class="flex flex-wrap items-end gap-3">
+<div class="flex-1 min-w-[200px]"><label class="text-xs font-bold text-slate-600 mb-1 block">Pilih Kuis:</label><select id="sa" class="w-full px-3 py-2.5 rounded-xl border text-sm bg-white focus:ring-2 focus:ring-brand-500 outline-none"><option value="">-- Pilih --</option></select></div>
+<button id="btn-export" class="hidden px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl shadow transition text-xs flex items-center gap-2">📥 Export Excel</button>
 </div>
-
-<!-- TAB HELP -->
-<div id="tab-help" class="gtab-c hidden space-y-5">
-    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
-        <h3 class="text-base font-extrabold text-blue-900 mb-3">📘 Format CSV (10 Kolom)</h3>
-        <div class="overflow-x-auto sb"><table class="w-full text-[11px] border-collapse min-w-[650px]"><thead><tr class="bg-blue-100"><th class="border border-blue-300 px-2 py-1.5 text-left">Kolom</th><th class="border border-blue-300 px-2 py-1.5 text-left">Keterangan</th><th class="border border-blue-300 px-2 py-1.5 text-left">Contoh</th></tr></thead><tbody class="text-blue-900">
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">bab</td><td class="border border-blue-200 px-2 py-1">Label bab</td><td class="border border-blue-200 px-2 py-1">Bab 1: Fotosintesis</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">type</td><td class="border border-blue-200 px-2 py-1">PG / BS / AN</td><td class="border border-blue-200 px-2 py-1">PG</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">difficulty</td><td class="border border-blue-200 px-2 py-1">mudah / sedang / sulit</td><td class="border border-blue-200 px-2 py-1">sedang</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">question</td><td class="border border-blue-200 px-2 py-1">Teks soal</td><td class="border border-blue-200 px-2 py-1">Apa fungsi klorofil?</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">option_a</td><td class="border border-blue-200 px-2 py-1">PG: Opsi A | BS: BENAR | AN: <strong>kata jawaban</strong></td><td class="border border-blue-200 px-2 py-1">Menyerap cahaya / BENAR / MAKKIYAH</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">option_b</td><td class="border border-blue-200 px-2 py-1">PG: Opsi B | BS: SALAH | AN: kosong</td><td class="border border-blue-200 px-2 py-1">Menyerap air / SALAH</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">option_c</td><td class="border border-blue-200 px-2 py-1">PG: Opsi C</td><td class="border border-blue-200 px-2 py-1">Menyimpan makanan</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">option_d</td><td class="border border-blue-200 px-2 py-1">PG: Opsi D</td><td class="border border-blue-200 px-2 py-1">Mengangkut oksigen</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">answer</td><td class="border border-blue-200 px-2 py-1">PG: 0/1/2/3 | BS: 0/1 | AN: kata jawaban</td><td class="border border-blue-200 px-2 py-1">0 / MAKKIYAH</td></tr>
-        <tr><td class="border border-blue-200 px-2 py-1 font-bold">discussion</td><td class="border border-blue-200 px-2 py-1">Pembahasan</td><td class="border border-blue-200 px-2 py-1">Klorofil berfungsi...</td></tr>
-        </tbody></table></div>
-        <div class="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-xl">
-            <p class="text-xs font-bold text-purple-900 mb-1">💡 Catatan Penting untuk Soal Anagram (AN):</p>
-            <ul class="text-[11px] text-purple-800 list-disc list-inside space-y-0.5">
-                <li>Kolom <code class="bg-purple-100 px-1 rounded">option_a</code> diisi <strong>kata jawaban langsung</strong> (misal: MAKKIYAH)</li>
-                <li>Huruf acak akan di-generate <strong>otomatis oleh sistem</strong></li>
-                <li>Kolom <code class="bg-purple-100 px-1 rounded">answer</code> juga diisi kata jawaban yang sama</li>
-                <li>Kolom option_b, option_c, option_d <strong>dikosongkan</strong></li>
-            </ul>
-        </div>
-    </div>
-    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-        <h3 class="text-base font-extrabold text-amber-900 mb-2">📋 Contoh CSV</h3>
-        <pre class="bg-white p-3 rounded-xl border text-[10px] text-amber-900 max-h-36 overflow-auto sb whitespace-pre-wrap">bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion
-Bab 1: Al-Insyirah,PG,mudah,Surah Al-Insyirah tergolong surah...,Madaniyah,Makkiyah,Kufiyah,Syamiyah,1,Diturunkan di Mekah (Makkiyah).
-Bab 1: Al-Insyirah,BS,sedang,Surah Al-Insyirah terdiri atas 8 ayat.,BENAR,SALAH,,,0,BENAR. Memiliki 8 ayat.
-Bab 2: Asmaulhusna,AN,sulit,Susun huruf menjadi Asmaulhusna Maha Pelindung:,ALWALIY,,,,ALWALIY,Jawabannya ALWALIY.</pre>
-        <button id="btn-dl" class="mt-3 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition">⬇️ Download Template</button>
-    </div>
-    <div class="bg-purple-50 border border-purple-200 rounded-2xl p-5">
-        <h3 class="text-base font-extrabold text-purple-900 mb-2">🤖 Prompt AI Generator CSV</h3>
-        <p class="text-sm text-purple-800 mb-3">Copy prompt ini → paste ke ChatGPT / Gemini / Claude:</p>
-        <div class="bg-white p-4 rounded-xl border border-purple-200 relative">
-            <pre id="ai-pr" class="text-[10px] text-purple-900 max-h-60 overflow-auto sb whitespace-pre-wrap leading-relaxed">Buatkan file CSV UTF-8 untuk kuis interaktif dengan spesifikasi:
-
-HEADER (wajib 10 kolom, urutan ini):
-bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion
-
-PENJELASAN KOLOM:
-- bab: Label topik. Contoh: "Bab 1: Nama Topik"
-- type: Tipe soal → PG (Pilihan Ganda 4 opsi), BS (Benar/Salah), AN (Anagram/Susun Kata)
-- difficulty: mudah / sedang / sulit
-- question: Teks soal lengkap
-- option_a sampai option_d:
-  * PG: Isi keempat opsi jawaban A, B, C, D
-  * BS: option_a = "BENAR", option_b = "SALAH", option_c dan option_d dikosongkan
-  * AN: option_a = KATA JAWABAN dalam huruf besar tanpa spasi (contoh: MAKKIYAH). option_b, c, d dikosongkan. Sistem akan otomatis mengacak huruf-hurufnya.
-- answer:
-  * PG: Index jawaban benar → 0=A, 1=B, 2=C, 3=D
-  * BS: 0=BENAR, 1=SALAH
-  * AN: Kata jawaban sama persis dengan option_a (huruf besar tanpa spasi)
-- discussion: Pembahasan/penjelasan jawaban yang edukatif
-
-SOAL YANG DIMINTA:
-- Mata Pelajaran: [ISI MAPEL]
-- Kelas: [ISI KELAS]
-- Topik/Bab: [ISI TOPIK]
-- Jumlah soal PG: [JUMLAH]
-- Jumlah soal BS: [JUMLAH]
-- Jumlah soal AN: [JUMLAH]
-- Distribusi kesulitan: bagi rata mudah/sedang/sulit
-
-ATURAN CSV:
-1. Jika teks mengandung koma, bungkus SELURUH sel dengan tanda kutip ganda
-2. Setiap baris HARUS punya tepat 10 kolom (pisahkan dengan koma)
-3. Untuk AN, option_a WAJIB berisi kata jawaban lengkap (huruf besar, tanpa spasi, tanpa koma)
-4. JANGAN taruh huruf acak di option_a untuk AN. Sistem yang akan mengacaknya.
-5. Output HANYA isi CSV tanpa penjelasan/markdown
-
-Buatkan sekarang!</pre>
-            <button onclick="copyT(EL('ai-pr').textContent)" class="absolute top-2 right-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-[10px] transition shadow">📋 Copy</button>
-        </div>
-    </div>
+<div id="an-box" class="hidden space-y-5 fade">
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="so"></div>
+<div class="bg-white rounded-2xl border p-5"><h4 class="text-sm font-extrabold text-slate-800 mb-4">📊 Distribusi Nilai</h4><div id="sch" class="flex items-end gap-1 h-40"></div><div id="scl" class="flex gap-1 mt-1 text-[9px] text-slate-500 font-semibold"></div></div>
+<div class="bg-white rounded-2xl border p-5"><h4 class="text-sm font-extrabold text-slate-800 mb-4">🎯 Analisis Kesulitan</h4><div id="da" class="grid sm:grid-cols-3 gap-3"></div></div>
+<div class="bg-white rounded-2xl border p-5"><h4 class="text-sm font-extrabold text-slate-800 mb-4">🔍 Analisis per Soal</h4><div id="qab" class="space-y-2 max-h-96 overflow-y-auto sb pr-1"></div></div>
+<div class="bg-white rounded-2xl border p-5"><h4 class="text-sm font-extrabold text-slate-800 mb-4">🏆 Peringkat</h4><div id="rkb" class="space-y-1 max-h-72 overflow-y-auto sb"></div></div>
 </div>
+<div id="an-emp" class="text-center py-10 text-slate-400"><div class="text-4xl mb-2">📈</div><p class="text-sm font-semibold">Pilih kuis untuk analisis.</p></div>
+</div></div>
 
-        </div>
-    </div>
-</div>
+<!-- TAB FORMAT CSV -->
+<div id="tab-fmt" class="gtc hidden space-y-5">
+<div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+<h3 class="text-base font-extrabold text-blue-900 mb-3">📘 Format CSV (10 Kolom)</h3>
+<div class="overflow-x-auto sb"><table class="w-full text-[11px] border-collapse min-w-[600px]"><thead><tr class="bg-blue-100"><th class="border border-blue-300 px-2 py-1.5 text-left">Kolom</th><th class="border border-blue-300 px-2 py-1.5 text-left">Keterangan</th><th class="border border-blue-300 px-2 py-1.5 text-left">Contoh</th></tr></thead><tbody class="text-blue-900">
+<tr><td class="border border-blue-200 px-2 py-1 font-bold">bab</td><td class="border border-blue-200 px-2 py-1">Label bab</td><td class="border border-blue-200 px-2 py-1">Bab 1: Fotosintesis</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 font-bold">type</td><td class="border border-blue-200 px-2 py-1">PG / BS / AN</td><td class="border border-blue-200 px-2 py-1">PG</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 font-bold">difficulty</td><td class="border border-blue-200 px-2 py-1">mudah / sedang / sulit</td><td class="border border-blue-200 px-2 py-1">sedang</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 font-bold">question</td><td class="border border-blue-200 px-2 py-1">Teks soal</td><td class="border border-blue-200 px-2 py-1">Apa ibu kota RI?</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 font-bold">option_a</td><td class="border border-blue-200 px-2 py-1">PG: Opsi A | BS: BENAR | AN: kata jawaban</td><td class="border border-blue-200 px-2 py-1">Jakarta / BENAR / MAKKIYAH</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 font-bold">option_b..d</td><td class="border border-blue-200 px-2 py-1">PG: Opsi B-D | BS: SALAH + kosong</td><td class="border border-blue-200 px-2 py-1">Bandung,Surabaya,Medan</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 font-bold">answer</td><td class="border border-blue-200 px-2 py-1">PG:0-3 | BS:0/1 | AN:kata jawaban</td><td class="border border-blue-200 px-2 py-1">0 / MAKKIYAH</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 font-bold">discussion</td><td class="border border-blue-200 px-2 py-1">Pembahasan</td><td class="border border-blue-200 px-2 py-1">Jakarta ibu kota RI.</td></tr>
+</tbody></table></div></div>
+<div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+<h3 class="text-sm font-extrabold text-amber-900 mb-2">📋 Contoh CSV</h3>
+<pre class="bg-white p-3 rounded-xl border text-[10px] text-amber-900 max-h-40 overflow-auto sb whitespace-pre-wrap">bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion
+Bab 1,PG,mudah,Surah Al-Insyirah tergolong?,Madaniyah,Makkiyah,Kufiyah,Syamiyah,1,Makkiyah karena turun di Mekah.
+Bab 1,BS,sedang,Al-Insyirah terdiri 8 ayat.,BENAR,SALAH,,,0,BENAR.
+Bab 2,AN,sulit,Susun nama Asmaulhusna Maha Pelindung:,ALWALIY,,,,ALWALIY,Jawabannya ALWALIY.</pre>
+<button id="bdl" class="mt-3 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition">⬇️ Download Template</button>
+</div></div>
+
+</div></div></div>
 
 <!-- SISWA JOIN -->
-<div id="scr-join" class="hidden my-auto max-w-md w-full mx-auto fade">
-    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border">
-        <div class="bg-gradient-to-r from-brand-800 to-brand-700 p-6 text-white text-center"><div class="text-4xl mb-2">👨‍🎓</div><h2 class="text-xl font-extrabold">Gabung Kuis</h2></div>
-        <div class="p-6 space-y-4">
-            <div><label class="block text-xs font-bold text-slate-600 mb-1">Kode Kuis *</label><input type="text" id="j-code" placeholder="ABC123" class="w-full px-4 py-3.5 rounded-xl border-2 border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-xl font-mono text-center tracking-[.3em] uppercase"></div>
-            <button id="btn-find" class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow-lg transition">🔍 Cari Kuis</button>
-            <div id="found-box" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3 fade">
-                <div class="flex items-center gap-2"><span class="text-2xl">✅</span><div><h4 id="f-title" class="font-extrabold text-emerald-900 text-sm">-</h4><p id="f-meta" class="text-[11px] text-emerald-700">-</p></div></div>
-                <div id="f-schedule" class="hidden p-2 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800"></div>
-                <div><label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap *</label><input type="text" id="j-name" placeholder="Nama lengkap" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
-                <div><label class="block text-xs font-bold text-slate-600 mb-1">Kelas *</label><select id="j-cls" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm bg-white"><option value="">-- Pilih --</option></select></div>
-                <button id="btn-go" class="w-full py-3 bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold rounded-xl shadow-lg transition">🚀 Mulai Kuis</button>
-            </div>
-            <button onclick="goHome()" class="w-full py-2 text-slate-500 hover:text-slate-800 font-semibold text-sm transition">← Kembali</button>
-        </div>
-    </div>
+<div id="s-join" class="hidden my-auto max-w-md w-full mx-auto fade">
+<div class="bg-white rounded-3xl shadow-2xl overflow-hidden border">
+<div class="bg-gradient-to-r from-brand-800 to-brand-700 p-6 text-white text-center"><div class="text-4xl mb-2">👨‍🎓</div><h2 class="text-xl font-extrabold">Gabung Kuis</h2></div>
+<div class="p-6 space-y-4">
+<div><label class="block text-xs font-bold text-slate-600 mb-1">Kode Kuis *</label><input type="text" id="jc" placeholder="ABC123" class="w-full px-4 py-3.5 rounded-xl border-2 focus:ring-2 focus:ring-brand-500 outline-none text-xl font-mono text-center tracking-[.3em] uppercase"></div>
+<button id="bfnd" class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow-lg transition">🔍 Cari</button>
+<div id="fbox" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3 fade">
+<div class="flex items-center gap-2"><span class="text-2xl">✅</span><div><h4 id="ft" class="font-extrabold text-emerald-900 text-sm">-</h4><p id="fm" class="text-[11px] text-emerald-700">-</p></div></div>
+<div id="fsc" class="hidden p-2 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800"></div>
+<div><label class="block text-xs font-bold text-slate-600 mb-1">Nama *</label><input type="text" id="jn" placeholder="Nama lengkap" class="w-full px-3 py-2.5 rounded-xl border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+<div><label class="block text-xs font-bold text-slate-600 mb-1">Kelas *</label><select id="jk" class="w-full px-3 py-2.5 rounded-xl border focus:ring-2 focus:ring-brand-500 outline-none text-sm bg-white"><option value="">-- Pilih --</option></select></div>
+<button id="bgo" class="w-full py-3 bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold rounded-xl shadow-lg transition">🚀 Mulai</button>
 </div>
+<button onclick="goH()" class="w-full py-2 text-slate-500 hover:text-slate-800 font-semibold text-sm transition">← Kembali</button>
+</div></div></div>
 
 <!-- QUIZ -->
-<div id="scr-quiz" class="hidden flex-1 flex-col gap-3 fade">
-    <div class="bg-white p-3 rounded-2xl shadow-sm border flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2 flex-wrap"><span id="b-type" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">PG</span><span id="b-diff" class="px-2 py-1 rounded-full text-[10px] font-bold dS">Sedang</span><span class="text-xs text-slate-500">Soal <strong id="cq">1</strong>/<span id="tq">0</span></span></div>
-        <div class="flex items-center gap-2"><span id="qt-bar" class="hidden sm:inline text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg truncate max-w-[140px]"></span><button id="btn-grd" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold text-slate-700 border border-slate-300 transition">🧩 Nomor</button></div>
-    </div>
-    <div class="bg-slate-200 rounded-full h-1.5 overflow-hidden"><div id="pbar" class="pbar bg-gradient-to-r from-brand-500 to-emerald-400 h-full rounded-full" style="width:0%"></div></div>
-    <div id="grd-p" class="hidden bg-white p-3 rounded-2xl shadow-md border"><div class="flex items-center justify-between mb-2 border-b pb-2"><h3 class="text-[10px] font-bold uppercase text-slate-600">Navigasi</h3><div class="flex gap-3 text-[9px]"><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-brand-700 inline-block"></span>Dijawab</span><span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-200 border inline-block"></span>Belum</span></div></div><div id="qgrid" class="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-15 gap-1 max-h-44 overflow-y-auto sb p-0.5"></div></div>
-    <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-md border flex-1 flex flex-col justify-between">
-        <div><div class="mb-5"><span id="q-bab" class="inline-block text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-500 mb-2">Bab</span><h2 id="q-txt" class="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">Loading...</h2></div><div id="q-opts" class="space-y-2"></div></div>
-        <div class="mt-6 pt-3 border-t flex items-center justify-between gap-3">
-            <button id="bp" class="px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition disabled:opacity-40 disabled:cursor-not-allowed">← Sebelumnya</button>
-            <button id="bn" class="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs shadow transition">Selanjutnya →</button>
-            <button id="bf" class="hidden px-4 py-2 rounded-xl bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold text-xs shadow-md transition">🏆 Selesaikan</button>
-        </div>
-    </div>
+<div id="s-quiz" class="hidden flex-1 flex-col gap-3 fade">
+<div class="bg-white p-3 rounded-2xl shadow-sm border flex flex-wrap items-center justify-between gap-2">
+<div class="flex items-center gap-2 flex-wrap"><span id="bt" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">PG</span><span id="bd" class="px-2 py-1 rounded-full text-[10px] font-bold dS">Sedang</span><span class="text-xs text-slate-500">Soal <strong id="cq">1</strong>/<span id="tq">0</span></span></div>
+<button id="bgrd" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold text-slate-700 border transition">🧩 Nomor</button>
 </div>
+<div class="bg-slate-200 rounded-full h-1.5 overflow-hidden"><div id="pb" class="pbar bg-gradient-to-r from-brand-500 to-emerald-400 h-full rounded-full" style="width:0%"></div></div>
+<div id="gp" class="hidden bg-white p-3 rounded-2xl shadow-md border"><div id="qg" class="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-15 gap-1 max-h-44 overflow-y-auto sb p-0.5"></div></div>
+<div class="bg-white p-5 rounded-2xl shadow-md border flex-1 flex flex-col justify-between">
+<div><div class="mb-5"><span id="qb" class="inline-block text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-500 mb-2">Bab</span><h2 id="qt" class="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">Loading...</h2></div><div id="qo" class="space-y-2"></div></div>
+<div class="mt-6 pt-3 border-t flex items-center justify-between gap-3">
+<button id="bp" class="px-3 py-2 rounded-xl border bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition disabled:opacity-40">← Prev</button>
+<button id="bn" class="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs shadow transition">Next →</button>
+<button id="bf" class="hidden px-4 py-2 rounded-xl bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold text-xs shadow-md transition">🏆 Selesai</button>
+</div></div></div>
 
 <!-- RESULT -->
-<div id="scr-res" class="hidden flex-1 flex-col gap-5 fade">
-    <div class="bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 rounded-3xl p-6 sm:p-8 text-white shadow-2xl text-center relative overflow-hidden border-2 border-gold-400">
-        <div class="absolute inset-0 opacity-5" style="background-image:radial-gradient(circle,white 1px,transparent 1px);background-size:24px 24px"></div>
-        <div class="relative z-10">
-            <span id="r-ico" class="text-5xl">🎉</span>
-            <h2 class="text-2xl font-extrabold mt-2">Hasil Evaluasi</h2>
-            <p id="r-usr" class="text-brand-200 text-sm mt-1">-</p>
-            <div class="my-5 inline-flex flex-col items-center bg-white/10 border border-white/20 rounded-2xl px-8 py-4 backdrop-blur-md"><span class="text-[10px] uppercase tracking-widest text-gold-400 font-extrabold">Skor Akhir</span><div class="text-5xl font-black mt-1" id="r-sc">0</div><span id="r-st" class="mt-2 px-4 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white">LULUS</span></div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-2xl mx-auto text-slate-800 text-center">
-                <div class="bg-white/95 rounded-xl p-2.5 border"><span class="block text-[9px] font-bold text-slate-500">Total</span><span id="r-tot" class="text-lg font-black">0</span></div>
-                <div class="bg-emerald-50 rounded-xl p-2.5 border border-emerald-200"><span class="block text-[9px] font-bold text-emerald-600">Benar</span><span id="r-ok" class="text-lg font-black text-emerald-700">0</span></div>
-                <div class="bg-rose-50 rounded-xl p-2.5 border border-rose-200"><span class="block text-[9px] font-bold text-rose-600">Salah</span><span id="r-no" class="text-lg font-black text-rose-700">0</span></div>
-                <div class="bg-amber-50 rounded-xl p-2.5 border border-amber-200"><span class="block text-[9px] font-bold text-amber-600">Kosong</span><span id="r-sk" class="text-lg font-black text-amber-700">0</span></div>
-            </div>
-            <div class="mt-3 grid grid-cols-3 gap-2 max-w-sm mx-auto">
-                <div class="bg-white/10 rounded-xl p-2 border border-white/10"><span class="block text-[8px] text-emerald-300 font-bold">Mudah</span><span id="r-dE" class="text-sm font-black">-</span></div>
-                <div class="bg-white/10 rounded-xl p-2 border border-white/10"><span class="block text-[8px] text-amber-300 font-bold">Sedang</span><span id="r-dM" class="text-sm font-black">-</span></div>
-                <div class="bg-white/10 rounded-xl p-2 border border-white/10"><span class="block text-[8px] text-rose-300 font-bold">Sulit</span><span id="r-dH" class="text-sm font-black">-</span></div>
-            </div>
-            <div class="mt-5 flex flex-wrap justify-center gap-3">
-                <button id="btn-re" class="px-5 py-2.5 bg-gold-400 hover:bg-gold-500 text-brand-900 font-extrabold rounded-xl shadow-lg transition">🔄 Ulangi</button>
-                <button onclick="goHome()" class="px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl border border-white/30 transition">🏠 Beranda</button>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-md border">
-        <div class="flex items-center justify-between mb-4 border-b pb-3"><h3 class="text-base font-bold text-slate-800">📚 Pembahasan Lengkap</h3></div>
-        <div id="rev-box" class="space-y-3 max-h-[550px] overflow-y-auto pr-2 sb"></div>
-    </div>
+<div id="s-res" class="hidden flex-1 flex-col gap-5 fade">
+<div class="bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-900 rounded-3xl p-6 sm:p-8 text-white shadow-2xl text-center relative overflow-hidden border-2 border-gold-400">
+<div class="relative z-10">
+<span id="ri" class="text-5xl">🎉</span><h2 class="text-2xl font-extrabold mt-2">Hasil Evaluasi</h2><p id="ru" class="text-brand-200 text-sm mt-1">-</p>
+<div class="my-5 inline-flex flex-col items-center bg-white/10 border border-white/20 rounded-2xl px-8 py-4"><span class="text-[10px] uppercase tracking-widest text-gold-400 font-extrabold">Skor</span><div class="text-5xl font-black mt-1" id="rs">0</div><span id="rx" class="mt-2 px-4 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white">LULUS</span></div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-2xl mx-auto text-slate-800 text-center">
+<div class="bg-white/95 rounded-xl p-2.5 border"><span class="block text-[9px] font-bold text-slate-500">Total</span><span id="rtt" class="text-lg font-black">0</span></div>
+<div class="bg-emerald-50 rounded-xl p-2.5 border border-emerald-200"><span class="block text-[9px] font-bold text-emerald-600">Benar</span><span id="rok" class="text-lg font-black text-emerald-700">0</span></div>
+<div class="bg-rose-50 rounded-xl p-2.5 border border-rose-200"><span class="block text-[9px] font-bold text-rose-600">Salah</span><span id="rno" class="text-lg font-black text-rose-700">0</span></div>
+<div class="bg-amber-50 rounded-xl p-2.5 border border-amber-200"><span class="block text-[9px] font-bold text-amber-600">Kosong</span><span id="rsk" class="text-lg font-black text-amber-700">0</span></div>
+</div>
+<div class="mt-3 grid grid-cols-3 gap-2 max-w-sm mx-auto"><div class="bg-white/10 rounded-xl p-2 border border-white/10"><span class="block text-[8px] text-emerald-300 font-bold">Mudah</span><span id="rde" class="text-sm font-black">-</span></div><div class="bg-white/10 rounded-xl p-2 border border-white/10"><span class="block text-[8px] text-amber-300 font-bold">Sedang</span><span id="rdm" class="text-sm font-black">-</span></div><div class="bg-white/10 rounded-xl p-2 border border-white/10"><span class="block text-[8px] text-rose-300 font-bold">Sulit</span><span id="rdh" class="text-sm font-black">-</span></div></div>
+<div class="mt-5 flex flex-wrap justify-center gap-3"><button id="bre" class="px-5 py-2.5 bg-gold-400 hover:bg-gold-500 text-brand-900 font-extrabold rounded-xl shadow-lg transition">🔄 Ulangi</button><button onclick="goH()" class="px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl border border-white/30 transition">🏠 Beranda</button></div>
+</div></div>
+<div class="bg-white rounded-2xl p-5 shadow-md border"><div class="flex items-center justify-between mb-4 border-b pb-3"><h3 class="text-base font-bold text-slate-800">📚 Pembahasan</h3></div><div id="rvb" class="space-y-3 max-h-[550px] overflow-y-auto pr-2 sb"></div></div>
 </div>
 
 </main>
@@ -394,22 +327,115 @@ Buatkan sekarang!</pre>
 <script>
 const FC={apiKey:"AIzaSyCvbtOHMYF5QGbw74TcHTT5WIPJRfTbQ9c",authDomain:"penilaian-harian-68ef6.firebaseapp.com",projectId:"penilaian-harian-68ef6",storageBucket:"penilaian-harian-68ef6.firebasestorage.app",messagingSenderId:"1063088378595",appId:"1:1063088378595:web:eeea2d92555e3e486d2bd6",measurementId:"G-GBXLYYC98L"};
 firebase.initializeApp(FC);const auth=firebase.auth(),db=firebase.firestore(),gP=new firebase.auth.GoogleAuthProvider();
-
 let CU=null,PQ=[],AQ=[],UA={},CI=0,SN='',SC='',QID=null,QM=null,AI=[];
-let timerInterval=null,timerSeconds=0;
-let editIdx=-1;
-
+let tmrI=null,tmrS=0,eIdx=-1,curStep=1;
+let analQuizData=null,analResults=[];
 const EL=id=>document.getElementById(id);
 function toast(m,t='info'){const c=EL('toast-c'),d=document.createElement('div');d.className=`tslide px-4 py-3 rounded-xl shadow-lg text-white text-sm font-semibold max-w-full ${{info:'bg-blue-600',success:'bg-emerald-600',error:'bg-rose-600',warn:'bg-amber-500 text-amber-900'}[t]||'bg-blue-600'}`;d.textContent=m;c.appendChild(d);setTimeout(()=>d.remove(),4500)}
 function copyT(t){navigator.clipboard.writeText(t).then(()=>toast('Disalin!','success')).catch(()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast('Disalin!','success')})}
 function shuf(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
 function genC(n=6){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function showS(id){document.querySelectorAll('main>div').forEach(e=>{e.classList.add('hidden');e.classList.remove('flex')});const t=EL(id);t.classList.remove('hidden');if(['scr-quiz','scr-res','scr-dash'].includes(id))t.classList.add('flex');window.scrollTo({top:0,behavior:'smooth'})}
-function goHome(){stopTimer();showS('scr-land');EL('hdr-info').classList.add('hidden');EL('hdr-info').classList.remove('flex');EL('timer-box').classList.add('hidden');EL('timer-box').classList.remove('flex')}
-function showLoad(t='Memuat...'){EL('load-txt').textContent=t;EL('loading-ov').classList.remove('hidden')}
-function hideLoad(){EL('loading-ov').classList.add('hidden')}
+function showS(id){document.querySelectorAll('main>div').forEach(e=>{e.classList.add('hidden');e.classList.remove('flex')});const t=EL(id);t.classList.remove('hidden');if(['s-quiz','s-res','s-dash'].includes(id))t.classList.add('flex');window.scrollTo({top:0,behavior:'smooth'})}
+function goH(){stopTmr();showS('s-land');EL('hui').classList.add('hidden');EL('hui').classList.remove('flex');EL('tmr').classList.add('hidden');EL('tmr').classList.remove('flex')}
+function showL(t='Memuat...'){EL('ltx').textContent=t;EL('lov').classList.remove('hidden')}
+function hideL(){EL('lov').classList.add('hidden')}
 
-// CSV PARSER - IMPROVED FOR ANAGRAM
+// DIFFICULTY SYNC
+function syncDiff(changed){
+    const e=parseInt(EL('pct-e').value)||0,m=parseInt(EL('pct-m').value)||0,h=parseInt(EL('pct-h').value)||0;
+    const sum=e+m+h;
+    EL('pct-e-val').textContent=e+'%';EL('pct-m-val').textContent=m+'%';EL('pct-h-val').textContent=h+'%';
+    EL('pct-e').style.setProperty('--v',e+'%');EL('pct-m').style.setProperty('--v',m+'%');EL('pct-h').style.setProperty('--v',h+'%');
+    EL('pct-total').textContent=sum+'%';EL('pct-sum').textContent=sum;
+    if(sum!==100){EL('pct-warn').classList.remove('hidden')}else{EL('pct-warn').classList.add('hidden')}
+}
+
+// AI PROMPT GENERATOR
+function genPrompt(){
+    const subj=EL('i-subj').value.trim()||'[Mata Pelajaran]';
+    const kls=EL('i-target').value.trim()||'[Kelas]';
+    const topics=EL('i-topics').value.trim()||'[Topik/Bab]';
+    const pg=parseInt(EL('ai-pg').value)||0,bs=parseInt(EL('ai-bs').value)||0,an=parseInt(EL('ai-an').value)||0;
+    const total=pg+bs+an;
+    const e=parseInt(EL('pct-e').value)||0,m=parseInt(EL('pct-m').value)||0,h=parseInt(EL('pct-h').value)||0;
+    if(e+m+h!==100){toast('Total distribusi kesulitan harus 100%!','warn');return}
+    if(total===0){toast('Jumlah soal minimal 1!','warn');return}
+    const pgE=Math.round(pg*e/100),pgM=Math.round(pg*m/100),pgH=pg-pgE-pgM;
+    const bsE=Math.round(bs*e/100),bsM=Math.round(bs*m/100),bsH=bs-bsE-bsM;
+    const anE=Math.round(an*e/100),anM=Math.round(an*m/100),anH=an-anE-anM;
+
+    const prompt=`Buatkan file CSV UTF-8 untuk kuis interaktif.
+
+HEADER CSV (wajib 10 kolom, urutan persis ini):
+bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion
+
+PENJELASAN TIAP KOLOM:
+- bab: Label topik, contoh "Bab 1: Nama Topik"
+- type: Tipe soal → PG (Pilihan Ganda), BS (Benar/Salah), AN (Anagram/Susun Kata)
+- difficulty: mudah / sedang / sulit
+- question: Teks soal lengkap
+- option_a sampai option_d:
+  * PG: Isi opsi A, B, C, D (4 pilihan jawaban)
+  * BS: option_a="BENAR", option_b="SALAH", option_c dan option_d KOSONG
+  * AN: option_a=KATA JAWABAN huruf besar tanpa spasi (contoh: MAKKIYAH). option_b,c,d KOSONG
+- answer:
+  * PG: Index jawaban benar (0=A, 1=B, 2=C, 3=D)
+  * BS: 0 jika jawabannya BENAR, 1 jika jawabannya SALAH
+  * AN: Kata jawaban sama persis dengan option_a
+- discussion: Pembahasan edukatif
+
+DETAIL SOAL YANG HARUS DIBUAT:
+📚 Mata Pelajaran: ${subj}
+🎓 Kelas: ${kls}
+📖 Topik/Bab: ${topics}
+
+📊 DISTRIBUSI SOAL:
+┌──────────┬───────┬────────┬───────┬───────┐
+│ Tipe     │ Total │ Mudah  │Sedang │ Sulit │
+├──────────┼───────┼────────┼───────┼───────┤
+│ PG       │  ${String(pg).padStart(3)}  │  ${String(pgE).padStart(3)}   │ ${String(pgM).padStart(3)}   │ ${String(pgH).padStart(3)}   │
+│ BS       │  ${String(bs).padStart(3)}  │  ${String(bsE).padStart(3)}   │ ${String(bsM).padStart(3)}   │ ${String(bsH).padStart(3)}   │
+│ AN       │  ${String(an).padStart(3)}  │  ${String(anE).padStart(3)}   │ ${String(anM).padStart(3)}   │ ${String(anH).padStart(3)}   │
+├──────────┼───────┼────────┼───────┼───────┤
+│ TOTAL    │  ${String(total).padStart(3)}  │  ${String(pgE+bsE+anE).padStart(3)}   │ ${String(pgM+bsM+anM).padStart(3)}   │ ${String(pgH+bsH+anH).padStart(3)}   │
+└──────────┴───────┴────────┴───────┴───────┘
+
+ATURAN PENTING:
+1. Jika teks mengandung koma, bungkus SELURUH sel dengan tanda kutip ganda ("...")
+2. Setiap baris HARUS punya tepat 10 kolom dipisahkan koma
+3. Untuk AN: option_a WAJIB berisi KATA JAWABAN LENGKAP (huruf besar, tanpa spasi). Contoh: MAKKIYAH. JANGAN isi huruf acak. Sistem akan mengacak otomatis.
+4. Untuk AN: Kata jawaban di option_a dan answer HARUS SAMA PERSIS
+5. Untuk BS: option_a selalu "BENAR", option_b selalu "SALAH"
+6. Pembahasan harus edukatif dan menjelaskan MENGAPA jawaban tersebut benar
+7. Soal harus bervariasi dan mencakup semua topik/bab yang disebutkan
+8. Output HANYA isi file CSV saja, TANPA markdown, TANPA penjelasan, TANPA blok kode
+
+Langsung mulai dari baris header CSV!`;
+
+    EL('prompt-out').value=prompt;
+    EL('prompt-box').classList.remove('hidden');
+
+    const encodedPrompt=encodeURIComponent(prompt);
+    EL('link-chatgpt').href=`https://chatgpt.com/?q=${encodedPrompt.substring(0,3000)}`;
+    EL('link-gemini').href=`https://gemini.google.com/app?q=${encodedPrompt.substring(0,3000)}`;
+    EL('link-claude').href=`https://claude.ai/new`;
+
+    toast('Prompt berhasil di-generate! Copy dan paste ke AI pilihan Anda.','success');
+}
+
+// WIZARD STEPS
+function goStep(n){
+    curStep=n;
+    for(let i=1;i<=4;i++){
+        EL('step'+i).classList.toggle('hidden',i!==n);
+        const si=EL('si'+i);
+        si.className=i<n?'step-done w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm':i===n?'step-active w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm':'step-pending w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm';
+    }
+    if(n===3)renderS3();
+    if(n===4)renderS4();
+}
+
+// CSV
 function parseCSV(text){
     const lines=[];let cur='',inQ=false;
     for(let i=0;i<text.length;i++){const ch=text[i];if(ch==='"'){if(inQ&&i+1<text.length&&text[i+1]==='"'){cur+='"';i++}else inQ=!inQ}else if((ch==='\n'||ch==='\r')&&!inQ){if(cur.trim())lines.push(cur);cur='';if(ch==='\r'&&i+1<text.length&&text[i+1]==='\n')i++}else cur+=ch}
@@ -420,347 +446,238 @@ function parseCSV(text){
         const cols=spl(lines[i]);if(cols.length<5)continue;
         const row={};hdr.forEach((h,idx)=>{row[h]=cols[idx]||''});
         const type=(row.type||'').toUpperCase().trim();if(!['PG','BS','AN'].includes(type))continue;
-        const diff=(row.difficulty||'sedang').toLowerCase().trim();
-        const vDiff=['mudah','sedang','sulit'].includes(diff)?diff:'sedang';
-        const q={id:i,bab:row.bab||'Umum',type,difficulty:vDiff,q:row.question||'',discussion:row.discussion||'Tidak ada pembahasan.'};
+        const diff=['mudah','sedang','sulit'].includes((row.difficulty||'').toLowerCase())?row.difficulty.toLowerCase():'sedang';
+        const q={id:i,bab:row.bab||'Umum',type,difficulty:diff,q:row.question||'',discussion:row.discussion||''};
         if(type==='PG'){q.options=[row.option_a||'',row.option_b||'',row.option_c||'',row.option_d||''].filter(o=>o);q.answer=parseInt(row.answer)||0}
         else if(type==='BS'){q.options=[row.option_a||'BENAR',row.option_b||'SALAH'];q.answer=parseInt(row.answer)||0}
-        else if(type==='AN'){
-            // FIXED: option_a = kata jawaban langsung, BUKAN huruf acak
-            let ansWord=(row.answer||row.option_a||'').toUpperCase().replace(/[^A-Z]/g,'');
-            if(!ansWord&&row.option_a){
-                // Jika option_a berisi huruf dipisah koma (format lama), gabungkan
-                const parts=row.option_a.split(',').map(l=>l.trim().toUpperCase()).filter(l=>l.length===1);
-                if(parts.length>1)ansWord=parts.join('');
-                else ansWord=row.option_a.toUpperCase().replace(/[^A-Z]/g,'');
-            }
-            q.answer=ansWord;
-            q.letters=ansWord.split(''); // Generate letters dari jawaban
-        }
+        else{let w=(row.answer||row.option_a||'').toUpperCase().replace(/[^A-Z]/g,'');if(!w&&row.option_a){const p=row.option_a.split(',').map(l=>l.trim().toUpperCase()).filter(l=>l.length===1);w=p.length>1?p.join(''):row.option_a.toUpperCase().replace(/[^A-Z]/g,'')}q.answer=w;q.letters=w.split('')}
         qs.push(q);
     }return qs;
 }
-
-function prepQuiz(questions){
-    let sh=shuf(questions);
-    sh=sh.map(q=>{
-        if(q.type==='PG'){const ix=q.options.map((o,i)=>({t:o,ok:i===q.answer}));const s=shuf(ix);return{...q,options:s.map(o=>o.t),answer:s.findIndex(o=>o.ok)}}
-        if(q.type==='AN')return{...q,shuffledLetters:shuf(q.letters)};
-        return q;
-    });AQ=sh;UA={};CI=0;AI=[];
-}
-
-// TIMER
-function startTimer(minutes){
-    timerSeconds=minutes*60;EL('timer-box').classList.remove('hidden');EL('timer-box').classList.add('flex');
-    updateTimerDisplay();
-    timerInterval=setInterval(()=>{
-        timerSeconds--;updateTimerDisplay();
-        if(timerSeconds<=0){clearInterval(timerInterval);toast('⏰ Waktu habis! Kuis otomatis diselesaikan.','warn');calcResult()}
-        if(timerSeconds<=60)EL('timer-display').classList.add('timer-pulse','text-rose-200');
-    },1000);
-}
-function stopTimer(){clearInterval(timerInterval);EL('timer-box').classList.add('hidden');EL('timer-box').classList.remove('flex');EL('timer-display').classList.remove('timer-pulse','text-rose-200')}
-function updateTimerDisplay(){const h=Math.floor(timerSeconds/3600),m=Math.floor((timerSeconds%3600)/60),s=timerSeconds%60;EL('timer-display').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
-
-// NAV
-EL('btn-guru').onclick=()=>showS('scr-glog');
-EL('btn-siswa').onclick=()=>showS('scr-join');
-EL('land-join').onclick=()=>{const c=EL('land-code').value.trim().toUpperCase();if(!c){toast('Masukkan kode!','warn');return}EL('j-code').value=c;showS('scr-join');setTimeout(()=>EL('btn-find').click(),300)};
-
-// AUTH
-EL('btn-glog').onclick=async()=>{showLoad('Login...');try{try{const r=await auth.signInWithPopup(gP);CU=r.user;hideLoad();toast(`Halo, ${CU.displayName}!`,'success');setupDash();showS('scr-dash')}catch(pe){if(['auth/unauthorized-domain','auth/popup-blocked','auth/popup-closed-by-user'].includes(pe.code)){hideLoad();toast('Redirect login...','info');await auth.signInWithRedirect(gP)}else throw pe}}catch(e){hideLoad();toast('Login gagal: '+e.message,'error')}};
-auth.getRedirectResult().then(r=>{if(r.user){CU=r.user;toast(`Halo, ${CU.displayName}!`,'success');setupDash();showS('scr-dash')}}).catch(e=>{if(e.code)console.error(e)});
-EL('btn-out').onclick=async()=>{await auth.signOut();CU=null;EL('btn-out').classList.add('hidden');goHome();toast('Logout','success')};
-auth.onAuthStateChanged(u=>{CU=u;EL('btn-out').classList.toggle('hidden',!u)});
-
-function setupDash(){
-    EL('g-name').textContent=CU.displayName||'Guru';EL('g-email').textContent=CU.email||'';
-    if(CU.photoURL){EL('g-av').src=CU.photoURL;EL('g-av').classList.remove('hidden')}
-    const hi=EL('hdr-info');hi.classList.remove('hidden');hi.classList.add('flex');
-    if(CU.photoURL){EL('hdr-av').src=CU.photoURL;EL('hdr-av').classList.remove('hidden')}
-    EL('hdr-name').textContent=CU.displayName||'Guru';EL('hdr-role').textContent='Guru';
-    loadQuizzes();loadAnalSel();
-}
-
-// TABS
-document.querySelectorAll('.gtab').forEach(t=>{t.onclick=()=>{document.querySelectorAll('.gtab').forEach(x=>{x.classList.remove('border-brand-600','text-brand-800','bg-white');x.classList.add('border-transparent','text-slate-500')});t.classList.add('border-brand-600','text-brand-800','bg-white');t.classList.remove('border-transparent','text-slate-500');document.querySelectorAll('.gtab-c').forEach(c=>c.classList.add('hidden'));EL('tab-'+t.dataset.tab).classList.remove('hidden')}});
+function prepQ(qs){let sh=shuf(qs);sh=sh.map(q=>{if(q.type==='PG'){const ix=q.options.map((o,i)=>({t:o,ok:i===q.answer}));const s=shuf(ix);return{...q,options:s.map(o=>o.t),answer:s.findIndex(o=>o.ok)}}if(q.type==='AN')return{...q,shuffledLetters:shuf(q.letters)};return q});AQ=sh;UA={};CI=0;AI=[]}
 
 // CSV UPLOAD
 const csvDrop=EL('csv-drop'),csvF=EL('csv-f');
-csvDrop.ondragover=e=>{e.preventDefault();csvDrop.classList.add('border-brand-500','bg-brand-50')};
-csvDrop.ondragleave=()=>csvDrop.classList.remove('border-brand-500','bg-brand-50');
+csvDrop.ondragover=e=>{e.preventDefault();csvDrop.classList.add('border-brand-500','bg-brand-50')};csvDrop.ondragleave=()=>csvDrop.classList.remove('border-brand-500','bg-brand-50');
 csvDrop.ondrop=e=>{e.preventDefault();csvDrop.classList.remove('border-brand-500','bg-brand-50');if(e.dataTransfer.files.length)handleCSV(e.dataTransfer.files[0])};
 csvF.onchange=e=>{if(e.target.files.length)handleCSV(e.target.files[0])};
-
 function handleCSV(file){
-    if(!file.name.endsWith('.csv')){toast('File harus .csv','error');return}
+    if(!file.name.endsWith('.csv')){toast('Harus .csv','error');return}
     const r=new FileReader();r.onload=e=>{
         PQ=parseCSV(e.target.result);if(!PQ.length){toast('Tidak ada soal valid!','error');return}
         EL('csv-info').classList.remove('hidden');EL('csv-fn').textContent=file.name;
         const pg=PQ.filter(q=>q.type==='PG').length,bs=PQ.filter(q=>q.type==='BS').length,an=PQ.filter(q=>q.type==='AN').length;
         const eC=PQ.filter(q=>q.difficulty==='mudah').length,mC=PQ.filter(q=>q.difficulty==='sedang').length,hC=PQ.filter(q=>q.difficulty==='sulit').length;
         EL('csv-st').innerHTML=`<span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold">PG:${pg}</span><span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold">BS:${bs}</span><span class="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded text-[9px] font-bold">AN:${an}</span><span class="px-1.5 py-0.5 dM rounded text-[9px] font-bold">Mudah:${eC}</span><span class="px-1.5 py-0.5 dS rounded text-[9px] font-bold">Sedang:${mC}</span><span class="px-1.5 py-0.5 dH rounded text-[9px] font-bold">Sulit:${hC}</span><span class="px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded text-[9px] font-bold">Total:${PQ.length}</span>`;
-        // Preview
-        const pv=EL('csv-pv');let h='<div class="space-y-1">';
-        PQ.slice(0,5).forEach((q,i)=>{const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';h+=`<div class="p-1.5 bg-white rounded border text-[10px]"><span class="font-bold text-brand-800">${i+1}.</span> <span class="font-semibold">[${q.type}]</span> <span class="px-1 py-0.5 rounded ${dc} text-[8px] font-bold">${q.difficulty}</span> ${q.q.substring(0,80)}${q.q.length>80?'...':''}</div>`});
-        if(PQ.length>5)h+=`<p class="text-[10px] text-slate-400 italic">...+${PQ.length-5} lainnya</p>`;
-        h+='</div>';pv.innerHTML=h;
-        EL('btn-edit-qs').classList.remove('hidden');EL('edit-count').textContent=PQ.length;
+        const pv=EL('csv-pv');let h='<div class="space-y-1">';PQ.slice(0,5).forEach((q,i)=>{const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';h+=`<div class="p-1.5 bg-white rounded border text-[10px]"><span class="font-bold text-brand-800">${i+1}.</span>[${q.type}]<span class="px-1 py-0.5 rounded ${dc} text-[8px] font-bold ml-1">${q.difficulty}</span> ${q.q.substring(0,70)}${q.q.length>70?'...':''}</div>`});
+        if(PQ.length>5)h+=`<p class="text-[10px] text-slate-400 italic">+${PQ.length-5} lainnya</p>`;h+='</div>';pv.innerHTML=h;
         toast(`${PQ.length} soal diparse!`,'success');
     };r.readAsText(file,'UTF-8');
 }
 
-// EDITOR
-EL('btn-edit-qs').onclick=()=>openEditor();
-function openEditor(){
-    EL('modal-edit').classList.remove('hidden');EL('ed-total').textContent=PQ.length;
-    renderEditorList();
+// STEP 3: EDIT LIST
+function renderS3(){
+    EL('s3-tot').textContent=PQ.length;const list=EL('s3-list');list.innerHTML='';
+    PQ.forEach((q,i)=>{const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';
+    let ap='';if(q.type==='PG')ap=`${String.fromCharCode(65+q.answer)}. ${q.options[q.answer]||''}`;else if(q.type==='BS')ap=q.answer===0?'BENAR':'SALAH';else ap=q.answer;
+    const d=document.createElement('div');d.className='p-3 border rounded-xl bg-slate-50 hover:bg-white transition flex items-start gap-2';
+    d.innerHTML=`<span class="w-6 h-6 rounded-lg bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0 mt-0.5">${i+1}</span><div class="flex-1 min-w-0"><div class="flex gap-1 mb-0.5"><span class="px-1 py-0.5 rounded text-[8px] font-bold bg-slate-200">${q.type}</span><span class="px-1 py-0.5 rounded text-[8px] font-bold ${dc}">${q.difficulty}</span><span class="text-[9px] text-slate-400 truncate">${q.bab}</span></div><p class="text-[11px] font-medium text-slate-800 truncate">${q.q}</p><p class="text-[10px] text-slate-500 mt-0.5 truncate">✅ ${ap}</p></div><div class="flex gap-1 shrink-0"><button onclick="editSe(${i})" class="px-2 py-1 bg-ocean-100 text-ocean-800 rounded text-[9px] font-bold hover:bg-ocean-200">✏️</button><button onclick="delQ(${i})" class="px-2 py-1 bg-rose-100 text-rose-800 rounded text-[9px] font-bold hover:bg-rose-200">🗑️</button></div>`;
+    list.appendChild(d)});
 }
-function closeEditor(){EL('modal-edit').classList.add('hidden')}
-function renderEditorList(){
-    const list=EL('ed-list');list.innerHTML='';
-    PQ.forEach((q,i)=>{
-        const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';
-        const d=document.createElement('div');d.className='p-3 border rounded-xl bg-slate-50 hover:bg-white transition flex items-start gap-3';
-        let ansPreview='';
-        if(q.type==='PG')ansPreview=`Jawaban: ${String.fromCharCode(65+q.answer)}. ${q.options[q.answer]||''}`;
-        else if(q.type==='BS')ansPreview=`Jawaban: ${q.answer===0?'BENAR':'SALAH'}`;
-        else ansPreview=`Jawaban: ${q.answer}`;
-        d.innerHTML=`<span class="w-7 h-7 rounded-lg bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 shrink-0 mt-0.5">${i+1}</span>
-            <div class="flex-1 min-w-0"><div class="flex gap-1 mb-1"><span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-slate-200">${q.type}</span><span class="px-1.5 py-0.5 rounded text-[8px] font-bold ${dc}">${q.difficulty}</span><span class="text-[9px] text-slate-400">${q.bab}</span></div><p class="text-xs font-medium text-slate-800 truncate">${q.q}</p><p class="text-[10px] text-slate-500 mt-0.5">${ansPreview}</p></div>
-            <div class="flex gap-1 shrink-0"><button onclick="editSingle(${i})" class="px-2 py-1 bg-ocean-100 text-ocean-800 rounded text-[10px] font-bold hover:bg-ocean-200 transition">✏️</button><button onclick="delQ(${i})" class="px-2 py-1 bg-rose-100 text-rose-800 rounded text-[10px] font-bold hover:bg-rose-200 transition">🗑️</button></div>`;
-        list.appendChild(d);
-    });EL('ed-total').textContent=PQ.length;EL('edit-count').textContent=PQ.length;
-}
-function delQ(i){if(!confirm('Hapus soal #'+(i+1)+'?'))return;PQ.splice(i,1);renderEditorList();toast('Soal dihapus','success')}
-function addQuestion(){PQ.push({id:PQ.length+1,bab:'Bab Baru',type:'PG',difficulty:'sedang',q:'Pertanyaan baru',options:['Opsi A','Opsi B','Opsi C','Opsi D'],answer:0,discussion:'Pembahasan.'});renderEditorList();editSingle(PQ.length-1);toast('Soal baru ditambahkan','success')}
-function saveEdits(){closeEditor();toast(`${PQ.length} soal siap publish!`,'success')}
+function delQ(i){if(!confirm('Hapus soal #'+(i+1)+'?'))return;PQ.splice(i,1);renderS3();toast('Dihapus','success')}
+function addQ(){PQ.push({id:PQ.length+1,bab:'Bab Baru',type:'PG',difficulty:'sedang',q:'Pertanyaan baru',options:['Opsi A','Opsi B','Opsi C','Opsi D'],answer:0,discussion:''});renderS3();editSe(PQ.length-1);toast('Ditambahkan','success')}
+function editSe(i){eIdx=i;const q=PQ[i];EL('sn').textContent=i+1;EL('sb').value=q.bab;EL('st').value=q.type;EL('sd').value=q.difficulty;EL('sq').value=q.q;EL('sdi').value=q.discussion;
+if(q.type==='PG'){EL('soa').value=q.options[0]||'';EL('sob').value=q.options[1]||'';EL('soc').value=q.options[2]||'';EL('sod').value=q.options[3]||'';EL('sap').value=q.answer}
+else if(q.type==='BS'){EL('sab').value=q.answer}else{EL('saa').value=q.answer}
+tgST();EL('m-se').classList.remove('hidden')}
+function tgST(){const t=EL('st').value;EL('spg').classList.toggle('hidden',t!=='PG');EL('sbs').classList.toggle('hidden',t!=='BS');EL('san').classList.toggle('hidden',t!=='AN')}
+function svSe(){const i=eIdx;if(i<0)return;const t=EL('st').value;PQ[i]={...PQ[i],bab:EL('sb').value,type:t,difficulty:EL('sd').value,q:EL('sq').value,discussion:EL('sdi').value};
+if(t==='PG'){PQ[i].options=[EL('soa').value,EL('sob').value,EL('soc').value,EL('sod').value].filter(o=>o);PQ[i].answer=parseInt(EL('sap').value)||0;delete PQ[i].letters}
+else if(t==='BS'){PQ[i].options=['BENAR','SALAH'];PQ[i].answer=parseInt(EL('sab').value)||0;delete PQ[i].letters}
+else{const w=EL('saa').value.toUpperCase().replace(/[^A-Z]/g,'');PQ[i].answer=w;PQ[i].letters=w.split('');PQ[i].options=[]}
+EL('m-se').classList.add('hidden');renderS3();toast('Disimpan!','success')}
+function saveEd(){EL('m-edit').classList.add('hidden');renderS3();toast(`${PQ.length} soal OK!`,'success')}
 
-// SINGLE EDITOR
-function editSingle(i){
-    editIdx=i;const q=PQ[i];EL('se-num').textContent=i+1;
-    EL('se-bab').value=q.bab;EL('se-type').value=q.type;EL('se-diff').value=q.difficulty;EL('se-q').value=q.q;EL('se-disc').value=q.discussion;
-    if(q.type==='PG'){EL('se-oa').value=q.options[0]||'';EL('se-ob').value=q.options[1]||'';EL('se-oc').value=q.options[2]||'';EL('se-od').value=q.options[3]||'';EL('se-ans-pg').value=q.answer}
-    else if(q.type==='BS'){EL('se-ans-bs').value=q.answer}
-    else{EL('se-ans-an').value=q.answer;EL('se-letters').value=q.letters?q.letters.join(', '):''}
-    toggleSingleType();EL('modal-single').classList.remove('hidden');
+// STEP 4: SUMMARY
+function renderS4(){
+    const pg=PQ.filter(q=>q.type==='PG').length,bs=PQ.filter(q=>q.type==='BS').length,an=PQ.filter(q=>q.type==='AN').length;
+    const eC=PQ.filter(q=>q.difficulty==='mudah').length,mC=PQ.filter(q=>q.difficulty==='sedang').length,hC=PQ.filter(q=>q.difficulty==='sulit').length;
+    EL('s4-summary').innerHTML=`
+    <div class="bg-slate-50 rounded-xl p-3 border text-center"><span class="block text-[10px] font-bold text-slate-500">Judul</span><span class="text-sm font-black text-slate-800">${EL('i-title').value||'-'}</span></div>
+    <div class="bg-slate-50 rounded-xl p-3 border text-center"><span class="block text-[10px] font-bold text-slate-500">Mapel</span><span class="text-sm font-black text-slate-800">${EL('i-subj').value||'-'}</span></div>
+    <div class="bg-slate-50 rounded-xl p-3 border text-center"><span class="block text-[10px] font-bold text-slate-500">Total Soal</span><span class="text-lg font-black text-brand-800">${PQ.length}</span></div>
+    <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-200 text-center"><span class="block text-[10px] font-bold text-emerald-600">PG</span><span class="text-lg font-black text-emerald-700">${pg}</span></div>
+    <div class="bg-blue-50 rounded-xl p-3 border border-blue-200 text-center"><span class="block text-[10px] font-bold text-blue-600">BS</span><span class="text-lg font-black text-blue-700">${bs}</span></div>
+    <div class="bg-purple-50 rounded-xl p-3 border border-purple-200 text-center"><span class="block text-[10px] font-bold text-purple-600">AN</span><span class="text-lg font-black text-purple-700">${an}</span></div>
+    <div class="dM rounded-xl p-3 text-center"><span class="block text-[10px] font-bold">Mudah</span><span class="text-lg font-black">${eC}</span></div>
+    <div class="dS rounded-xl p-3 text-center"><span class="block text-[10px] font-bold">Sedang</span><span class="text-lg font-black">${mC}</span></div>
+    <div class="dH rounded-xl p-3 text-center"><span class="block text-[10px] font-bold">Sulit</span><span class="text-lg font-black">${hC}</span></div>`;
 }
-function closeSingle(){EL('modal-single').classList.add('hidden')}
-function toggleSingleType(){
-    const t=EL('se-type').value;
-    EL('se-pg-opts').classList.toggle('hidden',t!=='PG');
-    EL('se-bs-opts').classList.toggle('hidden',t!=='BS');
-    EL('se-an-opts').classList.toggle('hidden',t!=='AN');
-}
-function saveSingle(){
-    const i=editIdx;if(i<0)return;const t=EL('se-type').value;
-    PQ[i].bab=EL('se-bab').value;PQ[i].type=t;PQ[i].difficulty=EL('se-diff').value;PQ[i].q=EL('se-q').value;PQ[i].discussion=EL('se-disc').value;
-    if(t==='PG'){PQ[i].options=[EL('se-oa').value,EL('se-ob').value,EL('se-oc').value,EL('se-od').value].filter(o=>o);PQ[i].answer=parseInt(EL('se-ans-pg').value)||0;delete PQ[i].letters}
-    else if(t==='BS'){PQ[i].options=['BENAR','SALAH'];PQ[i].answer=parseInt(EL('se-ans-bs').value)||0;delete PQ[i].letters}
-    else{const w=EL('se-ans-an').value.toUpperCase().replace(/[^A-Z]/g,'');PQ[i].answer=w;PQ[i].letters=w.split('');PQ[i].options=[];EL('se-letters').value=shuf(w.split('')).join(', ')}
-    closeSingle();renderEditorList();toast('Soal disimpan!','success');
-}
+
+// TIMER
+function startTmr(min){tmrS=min*60;EL('tmr').classList.remove('hidden');EL('tmr').classList.add('flex');updTmr();tmrI=setInterval(()=>{tmrS--;updTmr();if(tmrS<=0){clearInterval(tmrI);toast('⏰ Waktu habis!','warn');calcRes()}if(tmrS<=60)EL('tmd').classList.add('tp','text-rose-200')},1000)}
+function stopTmr(){clearInterval(tmrI);EL('tmr').classList.add('hidden');EL('tmr').classList.remove('flex');EL('tmd').classList.remove('tp','text-rose-200')}
+function updTmr(){const h=Math.floor(tmrS/3600),m=Math.floor((tmrS%3600)/60),s=tmrS%60;EL('tmd').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+
+// NAV
+EL('bg').onclick=()=>showS('s-glog');EL('bs').onclick=()=>showS('s-join');
+EL('lj').onclick=()=>{const c=EL('lc').value.trim().toUpperCase();if(!c){toast('Masukkan kode!','warn');return}EL('jc').value=c;showS('s-join');setTimeout(()=>EL('bfnd').click(),300)};
+
+// AUTH
+EL('bgl').onclick=async()=>{showL('Login...');try{try{const r=await auth.signInWithPopup(gP);CU=r.user;hideL();toast(`Halo, ${CU.displayName}!`,'success');setupD();showS('s-dash')}catch(pe){if(['auth/unauthorized-domain','auth/popup-blocked','auth/popup-closed-by-user'].includes(pe.code)){hideL();toast('Redirect...','info');await auth.signInWithRedirect(gP)}else throw pe}}catch(e){hideL();toast('Gagal: '+e.message,'error')}};
+auth.getRedirectResult().then(r=>{if(r.user){CU=r.user;toast(`Halo, ${CU.displayName}!`,'success');setupD();showS('s-dash')}}).catch(e=>{if(e.code)console.error(e)});
+EL('blo').onclick=async()=>{await auth.signOut();CU=null;EL('blo').classList.add('hidden');goH();toast('Logout','success')};
+auth.onAuthStateChanged(u=>{CU=u;EL('blo').classList.toggle('hidden',!u)});
+function setupD(){EL('gnm').textContent=CU.displayName||'Guru';EL('gem').textContent=CU.email||'';if(CU.photoURL){EL('gav').src=CU.photoURL;EL('gav').classList.remove('hidden')}const hi=EL('hui');hi.classList.remove('hidden');hi.classList.add('flex');if(CU.photoURL){EL('hav').src=CU.photoURL;EL('hav').classList.remove('hidden')}EL('hnm').textContent=CU.displayName||'Guru';EL('hrl').textContent='Guru';loadQ();loadAS()}
+
+// TABS
+document.querySelectorAll('.gt').forEach(t=>{t.onclick=()=>{document.querySelectorAll('.gt').forEach(x=>{x.classList.remove('border-brand-600','text-brand-800','bg-white');x.classList.add('border-transparent','text-slate-500')});t.classList.add('border-brand-600','text-brand-800','bg-white');t.classList.remove('border-transparent','text-slate-500');document.querySelectorAll('.gtc').forEach(c=>c.classList.add('hidden'));EL('tab-'+t.dataset.tab).classList.remove('hidden')}});
 
 // PUBLISH
 EL('btn-pub').onclick=async()=>{
-    if(!CU){toast('Login dulu!','error');return}
-    const title=EL('i-title').value.trim();if(!title){toast('Judul wajib!','warn');return}
-    if(!PQ.length){toast('Upload CSV dulu!','warn');return}
-    const dur=parseInt(EL('i-dur').value)||60;
-    const startDT=EL('i-start').value?new Date(EL('i-start').value).toISOString():null;
-    const endDT=EL('i-end').value?new Date(EL('i-end').value).toISOString():null;
-    if(startDT&&endDT&&new Date(startDT)>=new Date(endDT)){toast('Waktu selesai harus setelah waktu mulai!','warn');return}
+    if(!CU){toast('Login dulu!','error');return}const title=EL('i-title').value.trim();if(!title){toast('Judul wajib!','warn');return}if(!PQ.length){toast('Tidak ada soal!','warn');return}
+    const dur=parseInt(EL('i-dur').value)||60;const sdt=EL('i-start').value?new Date(EL('i-start').value).toISOString():null;const edt=EL('i-end').value?new Date(EL('i-end').value).toISOString():null;
+    if(sdt&&edt&&new Date(sdt)>=new Date(edt)){toast('Waktu selesai harus setelah mulai!','warn');return}
     const cls=EL('i-cls').value.trim()?EL('i-cls').value.split(',').map(c=>c.trim()).filter(c=>c):['Umum'];
     const code=genC(6);const btn=EL('btn-pub');btn.disabled=true;btn.innerHTML='⏳ Menyimpan...';
-    try{
-        const qDB=PQ.map(q=>{const o={bab:q.bab,type:q.type,difficulty:q.difficulty,q:q.q,answer:q.answer,discussion:q.discussion};if(q.type==='PG'||q.type==='BS')o.options=q.options;if(q.type==='AN')o.letters=q.letters;return o});
-        await db.collection('quizzes').doc(code).set({title,subject:EL('i-subj').value.trim(),target:EL('i-target').value.trim(),classes:cls,kkm:parseInt(EL('i-kkm').value)||75,duration:dur,scheduleStart:startDT,scheduleEnd:endDT,code,questions:qDB,createdBy:CU.uid,createdByName:CU.displayName||'',createdByEmail:CU.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp(),questionCount:qDB.length});
-        const base=location.origin+location.pathname;EL('o-link').value=`${base}?code=${code}`;EL('o-code').value=code;
-        EL('link-box').classList.remove('hidden');toast('Kuis dipublikasikan!','success');loadQuizzes();loadAnalSel();
-    }catch(e){toast('Gagal: '+e.message,'error')}
-    finally{btn.disabled=false;btn.innerHTML='🚀 Publish & Generate Link'}
+    try{const qDB=PQ.map(q=>{const o={bab:q.bab,type:q.type,difficulty:q.difficulty,q:q.q,answer:q.answer,discussion:q.discussion};if(q.type==='PG'||q.type==='BS')o.options=q.options;if(q.type==='AN')o.letters=q.letters;return o});
+    await db.collection('quizzes').doc(code).set({title,subject:EL('i-subj').value.trim(),target:EL('i-target').value.trim(),classes:cls,kkm:parseInt(EL('i-kkm').value)||75,duration:dur,scheduleStart:sdt,scheduleEnd:edt,code,questions:qDB,createdBy:CU.uid,createdByName:CU.displayName||'',createdByEmail:CU.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp(),questionCount:qDB.length});
+    const base=location.origin+location.pathname;EL('o-link').value=`${base}?code=${code}`;EL('o-code').value=code;EL('lnk-box').classList.remove('hidden');toast('Dipublikasikan!','success');loadQ();loadAS()}catch(e){toast('Gagal: '+e.message,'error')}finally{btn.disabled=false;btn.innerHTML='🚀 Publish & Generate Link'}
 };
 
-// TEMPLATE DOWNLOAD
-EL('btn-dl').onclick=()=>{const t=`bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion
-Bab 1: Contoh,PG,mudah,Apa ibu kota Indonesia?,Jakarta,Bandung,Surabaya,Medan,0,Jakarta adalah ibu kota RI.
-Bab 1: Contoh,PG,sedang,"Pancasila memiliki berapa sila?",4,5,6,7,1,Pancasila memiliki 5 sila.
-Bab 1: Contoh,BS,mudah,Indonesia merdeka tahun 1945.,BENAR,SALAH,,,0,BENAR. Merdeka 17 Agustus 1945.
-Bab 1: Contoh,BS,sulit,UUD 1945 tidak pernah diamandemen.,BENAR,SALAH,,,1,SALAH. Diamandemen 4 kali.
-Bab 1: Contoh,AN,sedang,Susun huruf menjadi nama ibu kota Indonesia:,JAKARTA,,,,JAKARTA,Jawabannya JAKARTA.
-Bab 1: Contoh,AN,sulit,Susun huruf menjadi nama dasar negara:,PANCASILA,,,,PANCASILA,Jawabannya PANCASILA.`;
-const b=new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='template_kuis.csv';a.click();URL.revokeObjectURL(u);toast('Template diunduh!','success')};
+// TEMPLATE
+EL('bdl').onclick=()=>{const t=`bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion\nBab 1,PG,mudah,Apa ibu kota Indonesia?,Jakarta,Bandung,Surabaya,Medan,0,Jakarta ibu kota RI.\nBab 1,BS,sedang,Indonesia merdeka 1945.,BENAR,SALAH,,,0,BENAR.\nBab 1,AN,sulit,Susun nama ibu kota:,JAKARTA,,,,JAKARTA,JAKARTA.`;const b=new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='template.csv';a.click();URL.revokeObjectURL(u);toast('Diunduh!','success')};
 
 // LOAD QUIZZES
-async function loadQuizzes(){
-    if(!CU)return;const list=EL('q-list');list.innerHTML='<p class="text-sm text-slate-400">Memuat...</p>';
-    try{const snap=await db.collection('quizzes').where('createdBy','==',CU.uid).get();
-    if(snap.empty){list.innerHTML='<p class="text-sm text-slate-400 italic">Belum ada kuis.</p>';return}
-    const docs=[];snap.forEach(d=>docs.push({id:d.id,...d.data()}));docs.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    let h='';const base=location.origin+location.pathname;
-    docs.forEach(d=>{const link=`${base}?code=${d.code}`;const dur=d.duration||60;
-        const sStart=d.scheduleStart?new Date(d.scheduleStart).toLocaleString('id-ID'):'Tidak diatur';
-        const sEnd=d.scheduleEnd?new Date(d.scheduleEnd).toLocaleString('id-ID'):'Tidak diatur';
-        h+=`<div class="p-4 border rounded-xl bg-slate-50 hover:bg-white transition stat-c">
-            <div class="flex flex-wrap items-start justify-between gap-2">
-                <div class="flex-1 min-w-0"><h4 class="font-extrabold text-slate-800 text-sm truncate">${d.title||'-'}</h4><p class="text-[10px] text-slate-500">${d.subject||'-'} • ${d.target||'-'} • ${d.questionCount||0} soal</p>
-                <p class="text-[10px] text-slate-400 mt-1">⏱️ ${dur} menit | 📅 Mulai: ${sStart} | Selesai: ${sEnd}</p>
-                <p class="text-[10px] text-slate-400 font-mono mt-0.5">Kode: <strong class="text-brand-800 text-sm tracking-wider">${d.code}</strong></p></div>
-                <div class="flex gap-1 flex-wrap shrink-0"><button onclick="copyT('${link}')" class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold hover:bg-emerald-200">📋Link</button><button onclick="copyT('${d.code}')" class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-[9px] font-bold hover:bg-blue-200">📋Kode</button><button onclick="delQuiz('${d.code}')" class="px-2 py-1 bg-rose-100 text-rose-800 rounded text-[9px] font-bold hover:bg-rose-200">🗑️</button></div>
-            </div></div>`});
-    list.innerHTML=h}catch(e){list.innerHTML=`<p class="text-sm text-rose-500">Error: ${e.message}</p>`}
-}
-async function delQuiz(c){if(!confirm('Hapus kuis?'))return;try{const rs=await db.collection('quizzes').doc(c).collection('results').get();const b=db.batch();rs.forEach(d=>b.delete(d.ref));await b.commit();await db.collection('quizzes').doc(c).delete();toast('Dihapus!','success');loadQuizzes();loadAnalSel()}catch(e){toast('Gagal: '+e.message,'error')}}
+async function loadQ(){if(!CU)return;const list=EL('ql');list.innerHTML='<p class="text-sm text-slate-400">Memuat...</p>';
+try{const snap=await db.collection('quizzes').where('createdBy','==',CU.uid).get();if(snap.empty){list.innerHTML='<p class="text-sm text-slate-400 italic">Belum ada.</p>';return}
+const docs=[];snap.forEach(d=>docs.push({id:d.id,...d.data()}));docs.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+let h='';const base=location.origin+location.pathname;
+docs.forEach(d=>{const lnk=`${base}?code=${d.code}`;h+=`<div class="p-3 border rounded-xl bg-slate-50 hover:bg-white transition sc"><div class="flex flex-wrap items-start justify-between gap-2"><div class="flex-1 min-w-0"><h4 class="font-extrabold text-slate-800 text-sm truncate">${d.title||'-'}</h4><p class="text-[10px] text-slate-500">${d.subject||'-'} • ${d.questionCount||0} soal • ⏱️${d.duration||60}m</p><p class="text-[10px] text-slate-400 font-mono mt-0.5">Kode: <strong class="text-brand-800 tracking-wider">${d.code}</strong></p></div><div class="flex gap-1 flex-wrap shrink-0"><button onclick="copyT('${lnk}')" class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold hover:bg-emerald-200">📋Link</button><button onclick="copyT('${d.code}')" class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-[9px] font-bold hover:bg-blue-200">📋Kode</button><button onclick="dQ('${d.code}')" class="px-2 py-1 bg-rose-100 text-rose-800 rounded text-[9px] font-bold hover:bg-rose-200">🗑️</button></div></div></div>`});
+list.innerHTML=h}catch(e){list.innerHTML=`<p class="text-sm text-rose-500">${e.message}</p>`}}
+async function dQ(c){if(!confirm('Hapus?'))return;try{const rs=await db.collection('quizzes').doc(c).collection('results').get();const b=db.batch();rs.forEach(d=>b.delete(d.ref));await b.commit();await db.collection('quizzes').doc(c).delete();toast('Dihapus!','success');loadQ();loadAS()}catch(e){toast(e.message,'error')}}
 
 // ANALYTICS
-async function loadAnalSel(){if(!CU)return;const s=EL('sel-anal');s.innerHTML='<option value="">-- Pilih --</option>';try{const snap=await db.collection('quizzes').where('createdBy','==',CU.uid).get();snap.forEach(d=>{const dt=d.data();const o=document.createElement('option');o.value=d.id;o.textContent=`${dt.title} (${dt.code})`;s.appendChild(o)})}catch(e){}}
-EL('sel-anal').onchange=async function(){const c=this.value;if(!c){EL('anal-box').classList.add('hidden');EL('anal-empty').classList.remove('hidden');return}
-showLoad('Analisis...');try{const qd=await db.collection('quizzes').doc(c).get();if(!qd.exists){hideLoad();return}const qData=qd.data();const rs=await db.collection('quizzes').doc(c).collection('results').get();const res=[];rs.forEach(d=>res.push(d.data()));renderAnal(qData,res);EL('anal-box').classList.remove('hidden');EL('anal-empty').classList.add('hidden')}catch(e){toast('Error: '+e.message,'error')}finally{hideLoad()}};
+async function loadAS(){if(!CU)return;const s=EL('sa');s.innerHTML='<option value="">-- Pilih --</option>';try{const snap=await db.collection('quizzes').where('createdBy','==',CU.uid).get();snap.forEach(d=>{const dt=d.data();const o=document.createElement('option');o.value=d.id;o.textContent=`${dt.title} (${dt.code}) - ${dt.questionCount} soal`;s.appendChild(o)})}catch(e){}}
+EL('sa').onchange=async function(){const c=this.value;if(!c){EL('an-box').classList.add('hidden');EL('an-emp').classList.remove('hidden');EL('btn-export').classList.add('hidden');return}
+showL('Analisis...');try{const qd=await db.collection('quizzes').doc(c).get();if(!qd.exists){hideL();return}analQuizData=qd.data();const rs=await db.collection('quizzes').doc(c).collection('results').get();analResults=[];rs.forEach(d=>analResults.push(d.data()));renderAn(analQuizData,analResults);EL('an-box').classList.remove('hidden');EL('an-emp').classList.add('hidden');EL('btn-export').classList.remove('hidden')}catch(e){toast(e.message,'error')}finally{hideL()}};
 
-function renderAnal(quiz,results){
-    const qs=quiz.questions||[],tot=results.length,kkm=quiz.kkm||75;
-    const scores=results.map(r=>r.score||0);const avg=tot?Math.round(scores.reduce((a,b)=>a+b,0)/tot):0;
-    const mx=tot?Math.max(...scores):0,mn=tot?Math.min(...scores):0,pass=scores.filter(s=>s>=kkm).length;
-    EL('st-ov').innerHTML=`<div class="stat-c bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 border border-blue-200 text-center"><div class="text-2xl font-black text-blue-800">${tot}</div><div class="text-[9px] font-bold text-blue-600 uppercase">Peserta</div></div>
-    <div class="stat-c bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-3 border border-emerald-200 text-center"><div class="text-2xl font-black text-emerald-800">${avg}</div><div class="text-[9px] font-bold text-emerald-600 uppercase">Rata-rata</div></div>
-    <div class="stat-c bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-3 border border-amber-200 text-center"><div class="text-2xl font-black text-amber-800">${tot?Math.round(pass/tot*100):0}%</div><div class="text-[9px] font-bold text-amber-600 uppercase">Lulus≥${kkm}</div></div>
-    <div class="stat-c bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 border border-purple-200 text-center"><div class="text-2xl font-black text-purple-800">${mx}/${mn}</div><div class="text-[9px] font-bold text-purple-600 uppercase">Max/Min</div></div>`;
-    // Distribution
-    const bins=Array(10).fill(0);scores.forEach(s=>{bins[Math.min(Math.floor(s/10),9)]++});const mxB=Math.max(...bins,1);
-    const lbl=['0-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100'];
+function renderAn(quiz,results){
+    const qs=quiz.questions||[],tot=results.length,kkm=quiz.kkm||75;const scores=results.map(r=>r.score||0);
+    const avg=tot?Math.round(scores.reduce((a,b)=>a+b,0)/tot):0,mx=tot?Math.max(...scores):0,mn=tot?Math.min(...scores):0,pass=scores.filter(s=>s>=kkm).length;
+    EL('so').innerHTML=`<div class="sc bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 border border-blue-200 text-center"><div class="text-2xl font-black text-blue-800">${tot}</div><div class="text-[9px] font-bold text-blue-600 uppercase">Peserta</div></div><div class="sc bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-3 border border-emerald-200 text-center"><div class="text-2xl font-black text-emerald-800">${avg}</div><div class="text-[9px] font-bold text-emerald-600 uppercase">Rata-rata</div></div><div class="sc bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-3 border border-amber-200 text-center"><div class="text-2xl font-black text-amber-800">${tot?Math.round(pass/tot*100):0}%</div><div class="text-[9px] font-bold text-amber-600 uppercase">Lulus≥${kkm}</div></div><div class="sc bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 border border-purple-200 text-center"><div class="text-2xl font-black text-purple-800">${mx}/${mn}</div><div class="text-[9px] font-bold text-purple-600 uppercase">Max/Min</div></div>`;
+    const bins=Array(10).fill(0);scores.forEach(s=>{bins[Math.min(Math.floor(s/10),9)]++});const mxB=Math.max(...bins,1);const lbl=['0-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100'];
     let ch='',lb='';bins.forEach((b,i)=>{const p=Math.round(b/mxB*100);const cl=i>=7?'bg-emerald-500':i>=5?'bg-amber-500':'bg-rose-500';ch+=`<div class="flex-1 flex flex-col items-center justify-end gap-0.5"><span class="text-[8px] font-bold text-slate-600">${b}</span><div class="cbar w-full ${cl} rounded-t" style="height:${Math.max(p,3)}%"></div></div>`;lb+=`<div class="flex-1 text-center">${lbl[i]}</div>`});
-    EL('sc-chart').innerHTML=ch;EL('sc-lbl').innerHTML=lb;
-    // Difficulty
-    const dfs=['mudah','sedang','sulit'],dIco={'mudah':'🟢','sedang':'🟡','sulit':'🔴'},dCl={'mudah':'emerald','sedang':'amber','sulit':'rose'};
-    let dfH='';dfs.forEach(d=>{const dQs=qs.filter(q=>q.difficulty===d);let tc=0,ta=0;results.forEach(r=>{if(r.perQuestion){dQs.forEach(q=>{const oi=qs.indexOf(q);if(r.perQuestion[oi]!==undefined){ta++;if(r.perQuestion[oi])tc++}})}});
-    const rate=ta?Math.round(tc/ta*100):'-';const c=dCl[d];
-    dfH+=`<div class="bg-${c}-50 rounded-xl p-4 border border-${c}-200 text-center stat-c"><div class="text-2xl mb-1">${dIco[d]}</div><div class="text-lg font-black text-${c}-800">${dQs.length} soal</div><div class="text-[10px] font-bold text-${c}-600 uppercase">${d}</div><div class="text-[10px] text-${c}-700 mt-1">Kebenaran: <strong>${rate}%</strong></div></div>`});
-    EL('df-anal').innerHTML=dfH;
-    // Per question
-    let qaH='';qs.forEach((q,i)=>{let ok=0,at=0;results.forEach(r=>{if(r.perQuestion&&r.perQuestion[i]!==undefined){at++;if(r.perQuestion[i])ok++}});const rate=at?Math.round(ok/at*100):null;
-    const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';
+    EL('sch').innerHTML=ch;EL('scl').innerHTML=lb;
+    const dfs=['mudah','sedang','sulit'],dIco={mudah:'🟢',sedang:'🟡',sulit:'🔴'},dCl={mudah:'emerald',sedang:'amber',sulit:'rose'};let dfH='';
+    dfs.forEach(d=>{const dQs=qs.filter(q=>q.difficulty===d);let tc=0,ta=0;results.forEach(r=>{if(r.perQuestion){dQs.forEach(q=>{const oi=qs.indexOf(q);if(r.perQuestion[oi]!==undefined){ta++;if(r.perQuestion[oi])tc++}})}});const rate=ta?Math.round(tc/ta*100):'-';const c=dCl[d];
+    dfH+=`<div class="bg-${c}-50 rounded-xl p-4 border border-${c}-200 text-center sc"><div class="text-2xl mb-1">${dIco[d]}</div><div class="text-lg font-black text-${c}-800">${dQs.length} soal</div><div class="text-[10px] font-bold text-${c}-600 uppercase">${d}</div><div class="text-[10px] text-${c}-700 mt-1">Benar: <strong>${rate}%</strong></div></div>`});
+    EL('da').innerHTML=dfH;
+    let qaH='';qs.forEach((q,i)=>{let ok=0,at=0;results.forEach(r=>{if(r.perQuestion&&r.perQuestion[i]!==undefined){at++;if(r.perQuestion[i])ok++}});const rate=at?Math.round(ok/at*100):null;const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';
     let ql='',qc='';if(rate!==null){if(rate>=80){ql='Sangat Mudah';qc='text-emerald-600'}else if(rate>=60){ql='Baik';qc='text-blue-600'}else if(rate>=40){ql='Cukup';qc='text-amber-600'}else if(rate>=20){ql='Sulit';qc='text-orange-600'}else{ql='Sangat Sulit';qc='text-rose-600'}}
-    qaH+=`<div class="p-2.5 bg-slate-50 rounded-lg border flex flex-wrap items-center justify-between gap-2 text-[11px]"><div class="flex items-center gap-2 flex-1 min-w-0"><span class="w-6 h-6 rounded bg-slate-200 flex items-center justify-center font-bold text-[10px] text-slate-700 shrink-0">${i+1}</span><div class="min-w-0"><p class="truncate text-slate-700 font-medium text-[10px]">${q.q.substring(0,55)}${q.q.length>55?'...':''}</p><div class="flex gap-1 mt-0.5"><span class="px-1 py-0.5 rounded text-[8px] font-bold ${dc}">${q.difficulty}</span><span class="px-1 py-0.5 rounded bg-slate-200 text-slate-600 text-[8px] font-bold">${q.type}</span></div></div></div><div class="text-right shrink-0">${rate!==null?`<div class="w-20 bg-slate-200 rounded-full h-1.5 mb-1"><div class="h-1.5 rounded-full ${rate>=60?'bg-emerald-500':rate>=40?'bg-amber-500':'bg-rose-500'}" style="width:${rate}%"></div></div><span class="font-bold ${qc}">${rate}%</span> <span class="text-slate-400">(${ok}/${at})</span><span class="block text-[8px] ${qc} font-bold">${ql}</span>`:'<span class="text-slate-400 text-[9px] italic">No data</span>'}</div></div>`});
-    EL('qa-box').innerHTML=qaH||'<p class="text-sm text-slate-400 italic">Belum ada data.</p>';
-    // Rank
-    const sorted=[...results].sort((a,b)=>(b.score||0)-(a.score||0));let rkH='';
-    sorted.forEach((r,i)=>{const md=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';const ps=r.score>=kkm;
-    rkH+=`<div class="flex items-center justify-between p-2 rounded-lg ${i<3?'bg-gold-300/10 border border-gold-300/30':'bg-slate-50 border'} text-xs"><div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full ${i<3?'bg-gold-400 text-brand-900':'bg-slate-200 text-slate-600'} flex items-center justify-center font-extrabold text-[10px]">${md||i+1}</span><div><span class="font-bold text-slate-800">${r.name||'?'}</span><span class="text-slate-400 ml-1">(${r.class||'-'})</span></div></div><div class="text-right"><span class="font-black text-base ${ps?'text-emerald-700':'text-rose-700'}">${r.score}</span><span class="block text-[8px] ${ps?'text-emerald-600':'text-rose-600'} font-bold">${ps?'LULUS':'REMEDIAL'}</span></div></div>`});
-    EL('rank-box').innerHTML=rkH||'<p class="text-sm text-slate-400 italic">Belum ada peserta.</p>';
+    qaH+=`<div class="p-2 bg-slate-50 rounded-lg border flex flex-wrap items-center justify-between gap-2 text-[10px]"><div class="flex items-center gap-2 flex-1 min-w-0"><span class="w-5 h-5 rounded bg-slate-200 flex items-center justify-center font-bold text-[9px] shrink-0">${i+1}</span><div class="min-w-0"><p class="truncate text-slate-700 font-medium">${q.q.substring(0,50)}${q.q.length>50?'...':''}</p><div class="flex gap-1 mt-0.5"><span class="px-1 py-0.5 rounded text-[8px] font-bold ${dc}">${q.difficulty}</span><span class="px-1 py-0.5 rounded bg-slate-200 text-[8px] font-bold">${q.type}</span></div></div></div><div class="text-right shrink-0">${rate!==null?`<div class="w-16 bg-slate-200 rounded-full h-1.5 mb-1"><div class="h-1.5 rounded-full ${rate>=60?'bg-emerald-500':rate>=40?'bg-amber-500':'bg-rose-500'}" style="width:${rate}%"></div></div><span class="font-bold ${qc}">${rate}%</span><span class="text-slate-400">(${ok}/${at})</span><span class="block text-[8px] ${qc} font-bold">${ql}</span>`:'<span class="text-slate-400 italic text-[9px]">-</span>'}</div></div>`});
+    EL('qab').innerHTML=qaH||'<p class="text-sm text-slate-400 italic">No data.</p>';
+    const sorted=[...results].sort((a,b)=>(b.score||0)-(a.score||0));let rkH='';sorted.forEach((r,i)=>{const md=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';const ps=r.score>=kkm;
+    rkH+=`<div class="flex items-center justify-between p-2 rounded-lg ${i<3?'bg-gold-300/10 border border-gold-300/30':'bg-slate-50 border'} text-xs"><div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full ${i<3?'bg-gold-400 text-brand-900':'bg-slate-200 text-slate-600'} flex items-center justify-center font-extrabold text-[10px]">${md||i+1}</span><span class="font-bold text-slate-800">${r.name||'?'}</span><span class="text-slate-400">(${r.class||'-'})</span></div><div class="text-right"><span class="font-black text-base ${ps?'text-emerald-700':'text-rose-700'}">${r.score}</span><span class="block text-[8px] ${ps?'text-emerald-600':'text-rose-600'} font-bold">${ps?'LULUS':'REMEDIAL'}</span></div></div>`});
+    EL('rkb').innerHTML=rkH||'<p class="text-sm text-slate-400 italic">Belum ada.</p>';
 }
 
-// SISWA FIND
-EL('btn-find').onclick=async()=>{const code=EL('j-code').value.trim().toUpperCase();if(!code){toast('Masukkan kode!','warn');return}showLoad('Mencari...');
-try{const doc=await db.collection('quizzes').doc(code).get();if(!doc.exists){hideLoad();toast('Kuis tidak ditemukan!','error');return}
-const d=doc.data();QID=code;QM=d;
-EL('f-title').textContent=d.title||'Kuis';
-const dur=d.duration||60;EL('f-meta').textContent=`${d.subject||'-'} • ${d.target||'-'} • ${d.questionCount||0} soal • ⏱️${dur} mnt • Oleh: ${d.createdByName||'Guru'}`;
-// Schedule check
-const now=new Date();const fSched=EL('f-schedule');
-if(d.scheduleStart||d.scheduleEnd){
-    fSched.classList.remove('hidden');let msg='📅 ';
-    if(d.scheduleStart)msg+=`Mulai: ${new Date(d.scheduleStart).toLocaleString('id-ID')} `;
-    if(d.scheduleEnd)msg+=`| Selesai: ${new Date(d.scheduleEnd).toLocaleString('id-ID')}`;
-    if(d.scheduleStart&&now<new Date(d.scheduleStart)){msg+='<br><strong class="text-rose-700">⚠️ Kuis belum dimulai!</strong>';fSched.innerHTML=msg;EL('btn-go').disabled=true;EL('btn-go').classList.add('opacity-50','cursor-not-allowed')}
-    else if(d.scheduleEnd&&now>new Date(d.scheduleEnd)){msg+='<br><strong class="text-rose-700">⚠️ Kuis sudah berakhir!</strong>';fSched.innerHTML=msg;EL('btn-go').disabled=true;EL('btn-go').classList.add('opacity-50','cursor-not-allowed')}
-    else{fSched.innerHTML=msg;EL('btn-go').disabled=false;EL('btn-go').classList.remove('opacity-50','cursor-not-allowed')}
-}else{fSched.classList.add('hidden');EL('btn-go').disabled=false;EL('btn-go').classList.remove('opacity-50','cursor-not-allowed')}
-const sel=EL('j-cls');sel.innerHTML='<option value="">-- Pilih --</option>';(d.classes||['Umum']).forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
-EL('found-box').classList.remove('hidden');toast('Ditemukan!','success')}catch(e){toast('Error: '+e.message,'error')}finally{hideLoad()}};
+// EXPORT EXCEL
+EL('btn-export').onclick=()=>{
+    if(!analQuizData||!analResults.length){toast('Tidak ada data!','warn');return}
+    const wb=XLSX.utils.book_new();const qs=analQuizData.questions||[];const kkm=analQuizData.kkm||75;
 
-EL('btn-go').onclick=()=>{
-    const nm=EL('j-name').value.trim(),cl=EL('j-cls').value;
-    if(!nm){toast('Isi nama!','warn');return}if(!cl){toast('Pilih kelas!','warn');return}
-    // Recheck schedule
-    const now=new Date();
-    if(QM.scheduleStart&&now<new Date(QM.scheduleStart)){toast('Kuis belum dimulai!','error');return}
-    if(QM.scheduleEnd&&now>new Date(QM.scheduleEnd)){toast('Kuis sudah berakhir!','error');return}
-    SN=nm;SC=cl;
-    const hi=EL('hdr-info');hi.classList.remove('hidden');hi.classList.add('flex');EL('hdr-name').textContent=SN;EL('hdr-role').textContent=SC;EL('hdr-sub').textContent=QM.title||'Kuis';
-    const qs=QM.questions.map((q,i)=>({id:i+1,bab:q.bab,type:q.type,difficulty:q.difficulty||'sedang',q:q.q,options:q.options||[],letters:q.letters||[],answer:q.answer,discussion:q.discussion}));
-    prepQuiz(qs);EL('tq').textContent=AQ.length;EL('qt-bar').textContent=QM.title||'';
-    showS('scr-quiz');renderQ();renderGrid();
-    startTimer(QM.duration||60);
+    // Sheet 1: Ringkasan
+    const s1Data=[['ANALISIS KUIS - '+analQuizData.title],[''],['Mata Pelajaran',analQuizData.subject||'-'],['Kelas',analQuizData.target||'-'],['KKM',kkm],['Total Soal',qs.length],['Total Peserta',analResults.length],['Rata-rata',analResults.length?Math.round(analResults.reduce((a,r)=>a+(r.score||0),0)/analResults.length):0],['Nilai Tertinggi',analResults.length?Math.max(...analResults.map(r=>r.score||0)):0],['Nilai Terendah',analResults.length?Math.min(...analResults.map(r=>r.score||0)):0],['Persentase Lulus',analResults.length?Math.round(analResults.filter(r=>r.score>=kkm).length/analResults.length*100)+'%':'0%']];
+    const ws1=XLSX.utils.aoa_to_sheet(s1Data);XLSX.utils.book_append_sheet(wb,ws1,'Ringkasan');
+
+    // Sheet 2: Peringkat Siswa
+    const s2Head=[['No','Nama','Kelas','Skor','Benar','Salah','Total','Status','Mudah','Sedang','Sulit']];
+    const sorted=[...analResults].sort((a,b)=>(b.score||0)-(a.score||0));
+    sorted.forEach((r,i)=>{const db=r.diffBreakdown||{mudah:{c:0,t:0},sedang:{c:0,t:0},sulit:{c:0,t:0}};
+    s2Head.push([i+1,r.name||'',r.class||'',r.score||0,r.correct||0,r.wrong||0,r.total||0,r.score>=kkm?'LULUS':'REMEDIAL',`${db.mudah?.c||0}/${db.mudah?.t||0}`,`${db.sedang?.c||0}/${db.sedang?.t||0}`,`${db.sulit?.c||0}/${db.sulit?.t||0}`])});
+    const ws2=XLSX.utils.aoa_to_sheet(s2Head);XLSX.utils.book_append_sheet(wb,ws2,'Peringkat Siswa');
+
+    // Sheet 3: Analisis per Soal
+    const s3Head=[['No','Bab','Tipe','Kesulitan','Soal','Dijawab','Benar','Persen Benar','Kualitas']];
+    qs.forEach((q,i)=>{let ok=0,at=0;analResults.forEach(r=>{if(r.perQuestion&&r.perQuestion[i]!==undefined){at++;if(r.perQuestion[i])ok++}});const rate=at?Math.round(ok/at*100):null;
+    let ql='-';if(rate!==null){if(rate>=80)ql='Sangat Mudah';else if(rate>=60)ql='Baik';else if(rate>=40)ql='Cukup';else if(rate>=20)ql='Sulit';else ql='Sangat Sulit'}
+    s3Head.push([i+1,q.bab,q.type,q.difficulty,q.q,at,ok,rate!==null?rate+'%':'-',ql])});
+    const ws3=XLSX.utils.aoa_to_sheet(s3Head);XLSX.utils.book_append_sheet(wb,ws3,'Analisis Soal');
+
+    // Sheet 4: Distribusi Nilai
+    const s4Head=[['Rentang','Jumlah']];const bins=Array(10).fill(0);analResults.forEach(r=>{bins[Math.min(Math.floor((r.score||0)/10),9)]++});
+    ['0-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100'].forEach((l,i)=>s4Head.push([l,bins[i]]));
+    const ws4=XLSX.utils.aoa_to_sheet(s4Head);XLSX.utils.book_append_sheet(wb,ws4,'Distribusi Nilai');
+
+    XLSX.writeFile(wb,`Analisis_${analQuizData.title||'Kuis'}_${new Date().toLocaleDateString('id-ID')}.xlsx`);
+    toast('File Excel berhasil diunduh!','success');
 };
 
-// URL CHECK
-function checkURL(){const p=new URLSearchParams(location.search);const c=p.get('code');if(c){EL('j-code').value=c.toUpperCase();showS('scr-join');setTimeout(()=>EL('btn-find').click(),500)}}
+// SISWA
+EL('bfnd').onclick=async()=>{const code=EL('jc').value.trim().toUpperCase();if(!code){toast('Kode!','warn');return}showL('Mencari...');
+try{const doc=await db.collection('quizzes').doc(code).get();if(!doc.exists){hideL();toast('Tidak ditemukan!','error');return}const d=doc.data();QID=code;QM=d;
+EL('ft').textContent=d.title||'Kuis';EL('fm').textContent=`${d.subject||'-'} • ${d.questionCount||0} soal • ⏱️${d.duration||60}m`;
+const now=new Date(),fs=EL('fsc');
+if(d.scheduleStart||d.scheduleEnd){fs.classList.remove('hidden');let msg='📅 ';if(d.scheduleStart)msg+=`Mulai: ${new Date(d.scheduleStart).toLocaleString('id-ID')} `;if(d.scheduleEnd)msg+=`Selesai: ${new Date(d.scheduleEnd).toLocaleString('id-ID')}`;
+if(d.scheduleStart&&now<new Date(d.scheduleStart)){msg+='<br><strong class="text-rose-700">⚠️ Belum dimulai!</strong>';fs.innerHTML=msg;EL('bgo').disabled=true;EL('bgo').classList.add('opacity-50')}
+else if(d.scheduleEnd&&now>new Date(d.scheduleEnd)){msg+='<br><strong class="text-rose-700">⚠️ Sudah berakhir!</strong>';fs.innerHTML=msg;EL('bgo').disabled=true;EL('bgo').classList.add('opacity-50')}
+else{fs.innerHTML=msg;EL('bgo').disabled=false;EL('bgo').classList.remove('opacity-50')}}else{fs.classList.add('hidden');EL('bgo').disabled=false;EL('bgo').classList.remove('opacity-50')}
+const sel=EL('jk');sel.innerHTML='<option value="">-- Pilih --</option>';(d.classes||['Umum']).forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
+EL('fbox').classList.remove('hidden');toast('Ditemukan!','success')}catch(e){toast(e.message,'error')}finally{hideL()}};
+
+EL('bgo').onclick=()=>{const nm=EL('jn').value.trim(),cl=EL('jk').value;if(!nm){toast('Nama!','warn');return}if(!cl){toast('Kelas!','warn');return}
+const now=new Date();if(QM.scheduleStart&&now<new Date(QM.scheduleStart)){toast('Belum dimulai!','error');return}if(QM.scheduleEnd&&now>new Date(QM.scheduleEnd)){toast('Sudah berakhir!','error');return}
+SN=nm;SC=cl;const hi=EL('hui');hi.classList.remove('hidden');hi.classList.add('flex');EL('hnm').textContent=SN;EL('hrl').textContent=SC;EL('hsub').textContent=QM.title||'';
+const qs=QM.questions.map((q,i)=>({id:i+1,bab:q.bab,type:q.type,difficulty:q.difficulty||'sedang',q:q.q,options:q.options||[],letters:q.letters||[],answer:q.answer,discussion:q.discussion}));
+prepQ(qs);EL('tq').textContent=AQ.length;showS('s-quiz');renderQz();renderGr();startTmr(QM.duration||60)};
+
+function checkURL(){const p=new URLSearchParams(location.search);const c=p.get('code');if(c){EL('jc').value=c.toUpperCase();showS('s-join');setTimeout(()=>EL('bfnd').click(),500)}}
 
 // QUIZ RENDER
-EL('btn-grd').onclick=()=>EL('grd-p').classList.toggle('hidden');
-EL('bp').onclick=()=>{if(CI>0){CI--;renderQ()}};
-EL('bn').onclick=()=>{if(CI<AQ.length-1){CI++;renderQ()}};
-EL('bf').onclick=()=>{const a=Object.keys(UA).filter(k=>UA[k]!==undefined&&UA[k]!=='').length;if(a<AQ.length&&!confirm(`Baru ${a}/${AQ.length} dijawab. Selesaikan?`))return;calcResult()};
-EL('btn-re').onclick=()=>{if(QM){const qs=QM.questions.map((q,i)=>({id:i+1,bab:q.bab,type:q.type,difficulty:q.difficulty||'sedang',q:q.q,options:q.options||[],letters:q.letters||[],answer:q.answer,discussion:q.discussion}));prepQuiz(qs)}EL('tq').textContent=AQ.length;showS('scr-quiz');renderQ();renderGrid();startTimer(QM?.duration||60)};
+EL('bgrd').onclick=()=>EL('gp').classList.toggle('hidden');
+EL('bp').onclick=()=>{if(CI>0){CI--;renderQz()}};EL('bn').onclick=()=>{if(CI<AQ.length-1){CI++;renderQz()}};
+EL('bf').onclick=()=>{const a=Object.keys(UA).filter(k=>UA[k]!==undefined&&UA[k]!=='').length;if(a<AQ.length&&!confirm(`Baru ${a}/${AQ.length}. Selesaikan?`))return;calcRes()};
+EL('bre').onclick=()=>{if(QM){prepQ(QM.questions.map((q,i)=>({id:i+1,bab:q.bab,type:q.type,difficulty:q.difficulty||'sedang',q:q.q,options:q.options||[],letters:q.letters||[],answer:q.answer,discussion:q.discussion})))}EL('tq').textContent=AQ.length;showS('s-quiz');renderQz();renderGr();startTmr(QM?.duration||60)};
 
-function renderQ(){
-    const q=AQ[CI];EL('cq').textContent=CI+1;EL('q-bab').textContent=q.bab;EL('q-txt').textContent=`${CI+1}. ${q.q}`;
-    EL('pbar').style.width=`${Math.round((CI+1)/AQ.length*100)}%`;
-    if(q.type==='PG'){EL('b-type').textContent='Pilihan Ganda';EL('b-type').className='px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300'}
-    else if(q.type==='BS'){EL('b-type').textContent='Benar/Salah';EL('b-type').className='px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300'}
-    else{EL('b-type').textContent='Susun Kata';EL('b-type').className='px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-300'}
-    const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';EL('b-diff').textContent=q.difficulty[0].toUpperCase()+q.difficulty.slice(1);EL('b-diff').className=`px-2 py-1 rounded-full text-[10px] font-bold ${dc}`;
-    const opts=EL('q-opts');opts.innerHTML='';
-    if(q.type==='PG'||q.type==='BS'){
-        q.options.forEach((o,i)=>{const sel=UA[CI]===i;const btn=document.createElement('button');btn.type='button';
-        btn.className=`w-full text-left p-3 rounded-xl border-2 transition-all flex items-center justify-between gap-2 ${sel?'border-brand-700 bg-brand-50 text-brand-900 font-bold shadow-sm':'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-700'}`;
-        const pf=q.type==='PG'?String.fromCharCode(65+i)+'.':i===0?'✓':'✗';
-        btn.innerHTML=`<div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-lg flex items-center justify-center font-bold text-[10px] shrink-0 ${sel?'bg-brand-700 text-white':'bg-slate-100 text-slate-600'}">${pf}</span><span class="text-sm">${o}</span></div>${sel?'<span class="text-brand-700">●</span>':''}`;
-        btn.onclick=()=>{UA[CI]=i;renderQ();renderGrid()};opts.appendChild(btn)});
-    }else if(q.type==='AN'){
-        const tL=q.answer.length;const cs=UA[CI]||'';AI=cs.split('').filter(c=>c);
-        const aB=document.createElement('div');aB.className='p-3 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center gap-2 min-h-[70px]';
-        let sl='<div class="flex flex-wrap justify-center gap-1">';for(let i=0;i<tL;i++){const ch=AI[i]||'';sl+=`<div class="w-8 h-9 sm:w-9 sm:h-10 rounded-lg border-2 ${ch?'border-brand-700 bg-brand-700 text-white shadow':'border-slate-300 bg-white text-slate-300'} font-extrabold text-sm sm:text-base flex items-center justify-center uppercase transition">${ch||'_'}</div>`}sl+='</div>';
-        aB.innerHTML=`<span class="text-[9px] font-semibold text-slate-500">Susunan:</span>${sl}`;opts.appendChild(aB);
-        const pool=document.createElement('div');pool.className='mt-3 p-3 bg-purple-50/60 rounded-2xl border border-purple-100';
-        const uIdx=getUI(q.shuffledLetters,AI);let lH='<p class="text-[9px] font-bold text-purple-900 mb-2 text-center">Klik huruf:</p><div class="flex flex-wrap justify-center gap-1.5">';
-        q.shuffledLetters.forEach((l,i)=>{const u=uIdx.includes(i);lH+=`<button type="button" data-l="${l}" data-i="${i}" ${u?'disabled':''} class="letter-btn w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-extrabold text-sm shadow-sm border ${u?'bg-slate-200 text-slate-400 border-slate-300 opacity-30':'bg-white hover:bg-purple-600 hover:text-white border-purple-200 text-purple-900 shadow hover:shadow-md'}">${l}</button>`});
-        lH+=`</div><div class="flex justify-center gap-2 mt-2.5"><button type="button" id="ab" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg text-[9px] font-bold transition">⌫ Hapus</button><button type="button" id="ar" class="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-[9px] font-bold transition">🔄 Reset</button></div>`;
-        pool.innerHTML=lH;opts.appendChild(pool);
-        pool.querySelectorAll('.letter-btn').forEach(b=>{b.onclick=()=>{if(AI.length<tL){AI.push(b.dataset.l);UA[CI]=AI.join('');renderQ();renderGrid()}}});
-        pool.querySelector('#ab')?.addEventListener('click',()=>{if(AI.length){AI.pop();UA[CI]=AI.join('');renderQ();renderGrid()}});
-        pool.querySelector('#ar')?.addEventListener('click',()=>{AI=[];delete UA[CI];renderQ();renderGrid()});
-    }
+function renderQz(){
+    const q=AQ[CI];EL('cq').textContent=CI+1;EL('qb').textContent=q.bab;EL('qt').textContent=`${CI+1}. ${q.q}`;EL('pb').style.width=`${Math.round((CI+1)/AQ.length*100)}%`;
+    if(q.type==='PG'){EL('bt').textContent='PG';EL('bt').className='px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300'}else if(q.type==='BS'){EL('bt').textContent='BS';EL('bt').className='px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300'}else{EL('bt').textContent='AN';EL('bt').className='px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-300'}
+    const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';EL('bd').textContent=q.difficulty[0].toUpperCase()+q.difficulty.slice(1);EL('bd').className=`px-2 py-1 rounded-full text-[10px] font-bold ${dc}`;
+    const opts=EL('qo');opts.innerHTML='';
+    if(q.type==='PG'||q.type==='BS'){q.options.forEach((o,i)=>{const sel=UA[CI]===i;const btn=document.createElement('button');btn.type='button';btn.className=`w-full text-left p-3 rounded-xl border-2 transition-all flex items-center justify-between gap-2 ${sel?'border-brand-700 bg-brand-50 text-brand-900 font-bold shadow-sm':'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-700'}`;const pf=q.type==='PG'?String.fromCharCode(65+i)+'.':i===0?'✓':'✗';btn.innerHTML=`<div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-lg flex items-center justify-center font-bold text-[10px] shrink-0 ${sel?'bg-brand-700 text-white':'bg-slate-100 text-slate-600'}">${pf}</span><span class="text-sm">${o}</span></div>${sel?'<span class="text-brand-700">●</span>':''}`;btn.onclick=()=>{UA[CI]=i;renderQz();renderGr()};opts.appendChild(btn)})}
+    else if(q.type==='AN'){const tL=q.answer.length;const cs=UA[CI]||'';AI=cs.split('').filter(c=>c);
+    const aB=document.createElement('div');aB.className='p-3 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center gap-2 min-h-[70px]';let sl='<div class="flex flex-wrap justify-center gap-1">';for(let i=0;i<tL;i++){const ch=AI[i]||'';sl+=`<div class="w-8 h-9 sm:w-9 sm:h-10 rounded-lg border-2 ${ch?'border-brand-700 bg-brand-700 text-white shadow':'border-slate-300 bg-white text-slate-300'} font-extrabold text-sm flex items-center justify-center uppercase">${ch||'_'}</div>`}sl+='</div>';aB.innerHTML=`<span class="text-[9px] font-semibold text-slate-500">Susunan:</span>${sl}`;opts.appendChild(aB);
+    const pool=document.createElement('div');pool.className='mt-3 p-3 bg-purple-50/60 rounded-2xl border border-purple-100';const uI=getUI(q.shuffledLetters,AI);let lH='<p class="text-[9px] font-bold text-purple-900 mb-2 text-center">Klik huruf:</p><div class="flex flex-wrap justify-center gap-1.5">';q.shuffledLetters.forEach((l,i)=>{const u=uI.includes(i);lH+=`<button type="button" data-l="${l}" ${u?'disabled':''} class="letter-btn w-8 h-8 sm:w-10 sm:h-10 rounded-xl font-extrabold text-sm shadow-sm border ${u?'bg-slate-200 text-slate-400 opacity-30':'bg-white hover:bg-purple-600 hover:text-white border-purple-200 text-purple-900 shadow hover:shadow-md'}">${l}</button>`});
+    lH+=`</div><div class="flex justify-center gap-2 mt-2.5"><button type="button" id="ab2" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-lg text-[9px] font-bold">⌫</button><button type="button" id="ar2" class="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-[9px] font-bold">🔄</button></div>`;
+    pool.innerHTML=lH;opts.appendChild(pool);
+    pool.querySelectorAll('.letter-btn').forEach(b=>{b.onclick=()=>{if(AI.length<tL){AI.push(b.dataset.l);UA[CI]=AI.join('');renderQz();renderGr()}}});
+    pool.querySelector('#ab2')?.addEventListener('click',()=>{if(AI.length){AI.pop();UA[CI]=AI.join('');renderQz();renderGr()}});
+    pool.querySelector('#ar2')?.addEventListener('click',()=>{AI=[];delete UA[CI];renderQz();renderGr()})}
     EL('bp').disabled=CI===0;if(CI===AQ.length-1){EL('bn').classList.add('hidden');EL('bf').classList.remove('hidden')}else{EL('bn').classList.remove('hidden');EL('bf').classList.add('hidden')}
 }
 function getUI(sh,inp){const u=[];const t=[...inp];sh.forEach((l,i)=>{const m=t.indexOf(l);if(m!==-1){u.push(i);t.splice(m,1)}});return u}
-function renderGrid(){const g=EL('qgrid');g.innerHTML='';AQ.forEach((q,i)=>{const a=UA[i]!==undefined&&UA[i]!=='';const c=i===CI;const b=document.createElement('button');b.type='button';b.className=`h-7 rounded-lg font-bold text-[9px] transition flex items-center justify-center border ${c?'ring-2 ring-gold-500 border-gold-500':''} ${a?'bg-brand-700 text-white border-brand-800':'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'}`;b.textContent=i+1;b.onclick=()=>{CI=i;renderQ();EL('grd-p').classList.add('hidden')};g.appendChild(b)})}
+function renderGr(){const g=EL('qg');g.innerHTML='';AQ.forEach((q,i)=>{const a=UA[i]!==undefined&&UA[i]!=='';const c=i===CI;const b=document.createElement('button');b.className=`h-7 rounded-lg font-bold text-[9px] transition flex items-center justify-center border ${c?'ring-2 ring-gold-500 border-gold-500':''} ${a?'bg-brand-700 text-white border-brand-800':'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'}`;b.textContent=i+1;b.onclick=()=>{CI=i;renderQz();EL('gp').classList.add('hidden')};g.appendChild(b)})}
 
 // RESULT
-async function calcResult(){
-    stopTimer();let ok=0;const pQ={};
-    const oMap=AQ.map(q=>QM.questions.findIndex(oq=>oq.q===q.q&&oq.type===q.type));
-    const dB={mudah:{c:0,t:0},sedang:{c:0,t:0},sulit:{c:0,t:0}};
-    AQ.forEach((q,i)=>{const ua=UA[i];let correct=false;
-        if(q.type==='PG'||q.type==='BS'){if(ua===q.answer)correct=true}
-        else if(q.type==='AN'){if(ua&&ua.toUpperCase()===q.answer.toUpperCase())correct=true}
-        if(correct)ok++;const oi=oMap[i];if(oi>=0)pQ[oi]=correct;
-        const d=q.difficulty||'sedang';if(!dB[d])dB[d]={c:0,t:0};dB[d].t++;if(correct)dB[d].c++;
-    });
-    const tot=AQ.length,wrong=tot-ok;const skip=tot-Object.keys(UA).filter(k=>UA[k]!==undefined&&UA[k]!=='').length;
-    const sc=Math.round(ok/tot*100);const kkm=QM?.kkm||75;
-    EL('r-usr').textContent=`${SN} | ${SC}`;EL('r-sc').textContent=sc;EL('r-ok').textContent=ok;EL('r-no').textContent=wrong-skip;EL('r-tot').textContent=tot;EL('r-sk').textContent=skip;
-    EL('r-dE').textContent=`${dB.mudah.c}/${dB.mudah.t}`;EL('r-dM').textContent=`${dB.sedang.c}/${dB.sedang.t}`;EL('r-dH').textContent=`${dB.sulit.c}/${dB.sulit.t}`;
-    if(sc>=kkm){EL('r-st').textContent='LULUS 🎉';EL('r-st').className='mt-2 px-4 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white shadow';EL('r-ico').textContent='🏆'}
-    else{EL('r-st').textContent='REMEDIAL 💪';EL('r-st').className='mt-2 px-4 py-1 rounded-full text-xs font-bold bg-amber-500 text-white shadow';EL('r-ico').textContent='📖'}
-    renderRev();showS('scr-res');
-    if(QID){try{await db.collection('quizzes').doc(QID).collection('results').add({name:SN,class:SC,score:sc,correct:ok,wrong:tot-ok,total:tot,skipped:skip,perQuestion:pQ,diffBreakdown:dB,timestamp:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){}}
+async function calcRes(){stopTmr();let ok=0;const pQ={};const oMap=AQ.map(q=>QM.questions.findIndex(oq=>oq.q===q.q&&oq.type===q.type));
+const dB={mudah:{c:0,t:0},sedang:{c:0,t:0},sulit:{c:0,t:0}};
+AQ.forEach((q,i)=>{const ua=UA[i];let correct=false;if(q.type==='PG'||q.type==='BS'){if(ua===q.answer)correct=true}else if(q.type==='AN'){if(ua&&ua.toUpperCase()===q.answer.toUpperCase())correct=true}
+if(correct)ok++;const oi=oMap[i];if(oi>=0)pQ[oi]=correct;const d=q.difficulty||'sedang';if(!dB[d])dB[d]={c:0,t:0};dB[d].t++;if(correct)dB[d].c++});
+const tot=AQ.length,wrong=tot-ok,skip=tot-Object.keys(UA).filter(k=>UA[k]!==undefined&&UA[k]!=='').length;
+const sc=Math.round(ok/tot*100),kkm=QM?.kkm||75;
+EL('ru').textContent=`${SN} | ${SC}`;EL('rs').textContent=sc;EL('rok').textContent=ok;EL('rno').textContent=wrong-skip;EL('rtt').textContent=tot;EL('rsk').textContent=skip;
+EL('rde').textContent=`${dB.mudah.c}/${dB.mudah.t}`;EL('rdm').textContent=`${dB.sedang.c}/${dB.sedang.t}`;EL('rdh').textContent=`${dB.sulit.c}/${dB.sulit.t}`;
+if(sc>=kkm){EL('rx').textContent='LULUS 🎉';EL('rx').className='mt-2 px-4 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white shadow';EL('ri').textContent='🏆'}
+else{EL('rx').textContent='REMEDIAL 💪';EL('rx').className='mt-2 px-4 py-1 rounded-full text-xs font-bold bg-amber-500 text-white shadow';EL('ri').textContent='📖'}
+renderRv();showS('s-res');
+if(QID){try{await db.collection('quizzes').doc(QID).collection('results').add({name:SN,class:SC,score:sc,correct:ok,wrong:tot-ok,total:tot,skipped:skip,perQuestion:pQ,diffBreakdown:dB,timestamp:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){}}
 }
-function renderRev(){const c=EL('rev-box');c.innerHTML='';
-AQ.forEach((q,i)=>{const ua=UA[i];let ok=false,uT='Tidak dijawab';
-    if(q.type==='PG'){if(ua!==undefined){uT=`${String.fromCharCode(65+ua)}. ${q.options[ua]}`;ok=ua===q.answer}}
-    else if(q.type==='BS'){if(ua!==undefined){uT=q.options[ua];ok=ua===q.answer}}
-    else if(q.type==='AN'){if(ua){uT=ua.toUpperCase();ok=ua.toUpperCase()===q.answer.toUpperCase()}}
-    let cT='';if(q.type==='PG')cT=`${String.fromCharCode(65+q.answer)}. ${q.options[q.answer]}`;else if(q.type==='BS')cT=q.options[q.answer];else cT=q.answer;
-    const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';
-    const d=document.createElement('div');d.className=`p-3 rounded-xl border ${ok?'border-emerald-200 bg-emerald-50/40':'border-rose-200 bg-rose-50/40'}`;
-    d.innerHTML=`<div class="flex items-start justify-between gap-2 mb-1 flex-wrap"><div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${ok?'bg-emerald-600 text-white':'bg-rose-600 text-white'}">#${i+1} ${ok?'✓':'✗'}</span><span class="text-[8px] font-bold px-1 py-0.5 rounded ${dc}">${q.difficulty}</span></div><span class="text-[9px] text-slate-500">${q.bab}</span></div>
-    <p class="text-xs font-bold text-slate-800 mb-2">${q.q}</p>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] mb-2"><div class="p-2 rounded bg-white border ${ok?'border-emerald-300 text-emerald-900':'border-rose-300 text-rose-900'}"><span class="font-bold block text-[8px] uppercase text-slate-400">Anda:</span><span class="font-semibold">${uT}</span></div><div class="p-2 rounded bg-white border border-slate-200"><span class="font-bold block text-[8px] uppercase text-slate-400">Kunci:</span><span class="font-bold text-brand-800">${cT}</span></div></div>
-    <div class="text-[11px] bg-white/80 p-2 rounded border text-slate-600"><span class="font-bold text-slate-800">💡</span> ${q.discussion}</div>`;
-    c.appendChild(d)})
-}
+function renderRv(){const c=EL('rvb');c.innerHTML='';AQ.forEach((q,i)=>{const ua=UA[i];let ok=false,uT='Tidak dijawab';
+if(q.type==='PG'){if(ua!==undefined){uT=`${String.fromCharCode(65+ua)}. ${q.options[ua]}`;ok=ua===q.answer}}else if(q.type==='BS'){if(ua!==undefined){uT=q.options[ua];ok=ua===q.answer}}else if(q.type==='AN'){if(ua){uT=ua.toUpperCase();ok=ua.toUpperCase()===q.answer.toUpperCase()}}
+let cT='';if(q.type==='PG')cT=`${String.fromCharCode(65+q.answer)}. ${q.options[q.answer]}`;else if(q.type==='BS')cT=q.options[q.answer];else cT=q.answer;
+const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';const d=document.createElement('div');d.className=`p-3 rounded-xl border ${ok?'border-emerald-200 bg-emerald-50/40':'border-rose-200 bg-rose-50/40'}`;
+d.innerHTML=`<div class="flex items-start justify-between gap-2 mb-1 flex-wrap"><div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${ok?'bg-emerald-600 text-white':'bg-rose-600 text-white'}">#${i+1} ${ok?'✓':'✗'}</span><span class="text-[8px] font-bold px-1 py-0.5 rounded ${dc}">${q.difficulty}</span></div><span class="text-[9px] text-slate-500">${q.bab}</span></div><p class="text-xs font-bold text-slate-800 mb-2">${q.q}</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] mb-2"><div class="p-2 rounded bg-white border ${ok?'border-emerald-300 text-emerald-900':'border-rose-300 text-rose-900'}"><span class="font-bold block text-[8px] uppercase text-slate-400">Anda:</span>${uT}</div><div class="p-2 rounded bg-white border"><span class="font-bold block text-[8px] uppercase text-slate-400">Kunci:</span><span class="font-bold text-brand-800">${cT}</span></div></div><div class="text-[11px] bg-white/80 p-2 rounded border text-slate-600">💡 ${q.discussion}</div>`;c.appendChild(d)})}
 
 window.addEventListener('DOMContentLoaded',()=>checkURL());
 </script>
