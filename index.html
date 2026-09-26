@@ -40,14 +40,6 @@
 <div id="toast-c" class="fixed top-4 right-4 z-[9999] space-y-2 max-w-sm"></div>
 <div id="lov" class="hidden fixed inset-0 z-[9998] bg-white/80 backdrop-blur-sm flex items-center justify-center"><div class="text-center"><div class="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div><p id="ltx" class="text-sm font-semibold text-slate-600">Memuat...</p></div></div>
 
-<!-- MODAL EDIT -->
-<div id="m-edit" class="hidden fixed inset-0 z-[9997] mbg flex items-center justify-center p-4">
-<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-<div class="bg-gradient-to-r from-brand-800 to-brand-700 p-4 text-white flex items-center justify-between shrink-0"><h3 class="font-extrabold text-sm">✏️ Editor Soal</h3><button onclick="EL('m-edit').classList.add('hidden')" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center text-lg">✕</button></div>
-<div class="p-3 border-b bg-slate-50 flex flex-wrap items-center justify-between gap-2 shrink-0"><div class="flex items-center gap-2 text-xs"><span class="font-bold text-slate-600">Total: <span id="ed-t" class="text-brand-800">0</span></span><button onclick="addQ()" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg transition text-xs">+ Tambah</button></div><button onclick="saveEd()" class="px-4 py-1.5 bg-gold-500 hover:bg-gold-600 text-brand-900 font-extrabold rounded-lg shadow transition text-xs">💾 Simpan</button></div>
-<div id="ed-l" class="flex-1 overflow-y-auto p-4 space-y-2 sb"></div>
-</div></div>
-
 <!-- MODAL SINGLE EDIT -->
 <div id="m-se" class="hidden fixed inset-0 z-[9998] mbg flex items-center justify-center p-4">
 <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto sb">
@@ -65,7 +57,7 @@
 
 <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-900 text-white shadow-xl border-b-4 border-gold-500 sticky top-0 z-50">
 <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
-<div class="flex items-center gap-3 cursor-pointer" onclick="goH()"><div class="w-10 h-10 rounded-xl bg-gold-400 text-brand-900 flex items-center justify-center font-extrabold text-lg shadow-md border-2 border-white/50">📝</div><div><h1 class="text-sm sm:text-base font-extrabold leading-tight">Platform Kuis Interaktif</h1><p class="text-[10px] text-gold-400 font-semibold" id="hsub">Evaluasi Pembelajaran — Custom CSV</p></div></div>
+<div class="flex items-center gap-3 cursor-pointer" onclick="goH()"><div class="w-10 h-10 rounded-xl bg-gold-400 text-brand-900 flex items-center justify-center font-extrabold text-lg shadow-md border-2 border-white/50">📝</div><div><h1 class="text-sm sm:text-base font-extrabold leading-tight">Platform Kuis Interaktif</h1><p class="text-[10px] text-gold-400 font-semibold" id="hsub">Evaluasi Pembelajaran — CSV Backslash</p></div></div>
 <div class="flex items-center gap-2">
 <div id="tmr" class="hidden items-center gap-1.5 bg-rose-600/90 px-3 py-1.5 rounded-lg border border-rose-400/50 text-xs"><span class="text-white/70">⏱️</span><span id="tmd" class="font-mono font-extrabold text-white text-sm tracking-wider">00:00:00</span></div>
 <div id="hui" class="hidden items-center gap-2 bg-brand-900/60 px-3 py-1.5 rounded-lg border border-brand-700/50 text-xs"><img id="hav" src="" class="w-5 h-5 rounded-full border border-white/50 hidden"><span class="text-emerald-300 font-medium" id="hnm">User</span><span class="text-slate-400">•</span><span class="text-gold-400 font-bold" id="hrl">-</span></div>
@@ -77,7 +69,7 @@
 <!-- LANDING -->
 <div id="s-land" class="my-auto max-w-xl w-full mx-auto fade">
 <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border">
-<div class="bg-gradient-to-br from-brand-800 via-brand-700 to-emerald-700 p-8 sm:p-10 text-white text-center relative overflow-hidden"><div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle,white 1px,transparent 1px);background-size:20px 20px"></div><div class="relative z-10"><div class="text-5xl mb-3">🎓</div><h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Platform Kuis Interaktif</h2><p class="text-brand-100 text-sm mt-2">Buat kuis dari CSV + AI Generator, atur waktu, analisis & export Excel.</p></div></div>
+<div class="bg-gradient-to-br from-brand-800 via-brand-700 to-emerald-700 p-8 sm:p-10 text-white text-center relative overflow-hidden"><div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle,white 1px,transparent 1px);background-size:20px 20px"></div><div class="relative z-10"><div class="text-5xl mb-3">🎓</div><h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Platform Kuis Interaktif</h2><p class="text-brand-100 text-sm mt-2">CSV pemisah backslash (\) + AI Generator + Analisis Excel</p></div></div>
 <div class="p-6 sm:p-8 space-y-4">
 <button id="bg" class="w-full py-4 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 text-white font-bold rounded-2xl shadow-lg transition flex items-center gap-4 px-5 group"><span class="text-3xl group-hover:scale-110 transition-transform">👨‍🏫</span><div class="text-left flex-1"><span class="block font-extrabold">Masuk sebagai Guru</span><span class="block text-xs text-brand-200 font-normal mt-0.5">Login → AI Generator → Upload CSV → Edit → Publish</span></div><span class="text-white/60 text-xl">→</span></button>
 <button id="bs" class="w-full py-4 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-2xl border-2 border-slate-200 hover:border-slate-300 transition flex items-center gap-4 px-5 group"><span class="text-3xl group-hover:scale-110 transition-transform">👨‍🎓</span><div class="text-left flex-1"><span class="block font-extrabold">Masuk sebagai Siswa</span><span class="block text-xs text-slate-500 font-normal mt-0.5">Masukkan kode kuis dari guru</span></div><span class="text-slate-400 text-xl">→</span></button>
@@ -107,7 +99,6 @@
 
 <!-- TAB CREATE - WIZARD STEPS -->
 <div id="tab-create" class="gtc">
-<!-- STEP INDICATORS -->
 <div class="flex items-center justify-center gap-2 mb-6">
 <button onclick="goStep(1)" id="si1" class="step-active w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</button><div class="w-8 h-0.5 bg-slate-200"></div>
 <button onclick="goStep(2)" id="si2" class="step-pending w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">2</button><div class="w-8 h-0.5 bg-slate-200"></div>
@@ -121,10 +112,10 @@
 <div class="grid md:grid-cols-2 gap-5">
 <div class="space-y-3 bg-white p-4 rounded-xl border">
 <h4 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">📌 Detail Kuis</h4>
-<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Judul Kuis *</label><input type="text" id="i-title" placeholder="Evaluasi PAI Bab 1-3 Kelas 6" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Judul Kuis *</label><input type="text" id="i-title" placeholder="Evaluasi PAI Bab 1-3" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
 <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Mata Pelajaran *</label><input type="text" id="i-subj" placeholder="PAI & Budi Pekerti" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
 <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Kelas *</label><input type="text" id="i-target" placeholder="Kelas VI SD" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
-<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Topik / Bab</label><textarea id="i-topics" rows="2" placeholder="Bab 1: QS. Al-Insyirah&#10;Bab 2: Asmaulhusna&#10;Bab 3: Toleransi" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm resize-y"></textarea></div>
+<div><label class="block text-[11px] font-bold text-slate-600 mb-1">Topik / Bab</label><textarea id="i-topics" rows="2" placeholder="Bab 1: QS. Al-Insyirah&#10;Bab 2: Asmaulhusna" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm resize-y"></textarea></div>
 <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Rombel (pisah koma)</label><input type="text" id="i-cls" placeholder="6A,6B,6C" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
 <div class="grid grid-cols-2 gap-3">
 <div><label class="block text-[11px] font-bold text-slate-600 mb-1">KKM</label><input type="number" id="i-kkm" value="75" min="0" max="100" class="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none text-sm"></div>
@@ -137,18 +128,18 @@
 </div>
 <div class="space-y-3 bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-200">
 <h4 class="text-xs font-extrabold text-purple-900 uppercase tracking-wider flex items-center gap-2">🤖 AI Prompt Generator</h4>
-<p class="text-[11px] text-purple-700">Konfigurasi di bawah, lalu klik "Generate Prompt" → copy ke AI.</p>
+<p class="text-[11px] text-purple-700">Konfigurasi, generate prompt, copy → paste ke AI.</p>
 <div class="grid grid-cols-3 gap-2">
 <div><label class="block text-[10px] font-bold text-purple-800 mb-1">Soal PG</label><input type="number" id="ai-pg" value="20" min="0" max="200" class="w-full px-3 py-2 rounded-lg border border-purple-300 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white text-center font-bold"></div>
 <div><label class="block text-[10px] font-bold text-purple-800 mb-1">Soal BS</label><input type="number" id="ai-bs" value="10" min="0" max="200" class="w-full px-3 py-2 rounded-lg border border-purple-300 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white text-center font-bold"></div>
 <div><label class="block text-[10px] font-bold text-purple-800 mb-1">Soal AN</label><input type="number" id="ai-an" value="10" min="0" max="200" class="w-full px-3 py-2 rounded-lg border border-purple-300 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white text-center font-bold"></div>
 </div>
 <div class="bg-white rounded-xl p-3 border border-purple-200 space-y-3">
-<h5 class="text-[11px] font-extrabold text-purple-900">📊 Distribusi Tingkat Kesulitan</h5>
+<h5 class="text-[11px] font-extrabold text-purple-900">📊 Distribusi Kesulitan</h5>
 <div class="space-y-2">
-<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-emerald-700">🟢 Mudah</label><span id="pct-e-val" class="text-xs font-black text-emerald-700">30%</span></div><input type="range" id="pct-e" min="0" max="100" value="30" class="w-full range-easy" style="--v:30%" oninput="syncDiff('e')"></div>
-<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-amber-700">🟡 Sedang</label><span id="pct-m-val" class="text-xs font-black text-amber-700">40%</span></div><input type="range" id="pct-m" min="0" max="100" value="40" class="w-full range-med" style="--v:40%" oninput="syncDiff('m')"></div>
-<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-rose-700">🔴 Sulit</label><span id="pct-h-val" class="text-xs font-black text-rose-700">30%</span></div><input type="range" id="pct-h" min="0" max="100" value="30" class="w-full range-hard" style="--v:30%" oninput="syncDiff('h')"></div>
+<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-emerald-700">🟢 Mudah</label><span id="pct-e-val" class="text-xs font-black text-emerald-700">30%</span></div><input type="range" id="pct-e" min="0" max="100" value="30" class="w-full range-easy" style="--v:30%" oninput="syncDiff()"></div>
+<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-amber-700">🟡 Sedang</label><span id="pct-m-val" class="text-xs font-black text-amber-700">40%</span></div><input type="range" id="pct-m" min="0" max="100" value="40" class="w-full range-med" style="--v:40%" oninput="syncDiff()"></div>
+<div><div class="flex items-center justify-between mb-1"><label class="text-[10px] font-bold text-rose-700">🔴 Sulit</label><span id="pct-h-val" class="text-xs font-black text-rose-700">30%</span></div><input type="range" id="pct-h" min="0" max="100" value="30" class="w-full range-hard" style="--v:30%" oninput="syncDiff()"></div>
 </div>
 <div id="pct-warn" class="hidden text-[10px] text-rose-600 font-bold p-1.5 bg-rose-50 rounded-lg border border-rose-200">⚠️ Total harus 100%! Saat ini: <span id="pct-sum">100</span>%</div>
 <div class="text-center"><div class="inline-flex items-center gap-1 bg-slate-100 px-3 py-1 rounded-full"><span class="text-[10px] font-bold text-slate-600">Total:</span><span id="pct-total" class="text-sm font-black text-slate-800">100%</span></div></div>
@@ -157,26 +148,27 @@
 <div id="prompt-box" class="hidden fade space-y-2">
 <div class="relative"><textarea id="prompt-out" rows="10" readonly class="w-full px-3 py-2 rounded-lg border border-purple-300 text-[10px] font-mono bg-white text-purple-900 resize-y sb"></textarea><button onclick="copyT(EL('prompt-out').value)" class="absolute top-2 right-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded text-[9px] transition shadow">📋 Copy</button></div>
 <div class="flex flex-wrap gap-2">
-<a id="link-chatgpt" href="#" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🟢 Buka ChatGPT</a>
-<a id="link-gemini" href="#" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🔵 Buka Gemini</a>
-<a id="link-claude" href="#" target="_blank" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🟠 Buka Claude</a>
+<a id="link-chatgpt" href="https://chatgpt.com" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🟢 Buka ChatGPT</a>
+<a id="link-gemini" href="https://gemini.google.com" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🔵 Buka Gemini</a>
+<a id="link-claude" href="https://claude.ai" target="_blank" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[10px] transition shadow flex items-center gap-1">🟠 Buka Claude</a>
 </div>
-<p class="text-[10px] text-purple-700 bg-purple-100 rounded-lg p-2 border border-purple-200">💡 <strong>Langkah:</strong> Copy prompt → Buka AI → Paste → Salin hasil CSV → Simpan sebagai file .csv → Upload di Step 2</p>
+<p class="text-[10px] text-purple-700 bg-purple-100 rounded-lg p-2 border border-purple-200">💡 <strong>Langkah:</strong> Copy prompt → Buka AI → Paste → Simpan hasil sebagai file .csv → Upload di Step 2</p>
 </div>
 </div>
-<button onclick="goStep(2)" class="w-full py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm mt-2">Lanjut ke Step 2: Upload CSV →</button>
 </div>
+<button onclick="goStep(2)" class="w-full py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm mt-2">Lanjut ke Step 2 →</button>
 </div>
 
 <!-- STEP 2: UPLOAD CSV -->
 <div id="step2" class="hidden space-y-5 fade">
-<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 2: Upload File CSV</h3><p class="text-xs text-slate-500">Upload hasil CSV dari AI atau file CSV buatan sendiri</p></div>
+<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 2: Upload File CSV</h3><p class="text-xs text-slate-500">Upload CSV dengan pemisah <strong class="text-brand-800 bg-brand-50 px-2 py-0.5 rounded font-mono">\</strong> (backslash)</p></div>
+<div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800"><p class="font-bold mb-1">⚠️ PENTING - Format File:</p><ul class="list-disc list-inside space-y-0.5 text-[11px]"><li>Pemisah kolom: <strong class="font-mono bg-white px-1 rounded">\</strong> (backslash), BUKAN koma</li><li>Encoding: UTF-8</li><li>Total 10 kolom per baris</li><li>Baris pertama = header</li></ul></div>
 <div class="grid md:grid-cols-2 gap-5">
 <div id="csv-drop" class="border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-2xl p-10 text-center cursor-pointer transition bg-slate-50 hover:bg-brand-50/50 group" onclick="EL('csv-f').click()">
-<input type="file" id="csv-f" accept=".csv" class="hidden">
+<input type="file" id="csv-f" accept=".csv,.txt" class="hidden">
 <div class="text-5xl mb-3 group-hover:scale-110 transition-transform">📂</div>
 <p class="text-sm font-bold text-slate-600">Klik atau Drag & Drop file CSV</p>
-<p class="text-xs text-slate-400 mt-1">Format UTF-8 • 10 kolom</p>
+<p class="text-xs text-slate-400 mt-1">Pemisah: <strong>\</strong> • Format .csv atau .txt</p>
 </div>
 <div>
 <div id="csv-info" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1 mb-3"><div class="font-bold">✅ <span id="csv-fn"></span></div><div id="csv-st" class="flex flex-wrap gap-1"></div></div>
@@ -185,31 +177,31 @@
 </div>
 <div class="flex flex-wrap gap-3">
 <button onclick="goStep(1)" class="px-5 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-sm transition">← Kembali</button>
-<button onclick="if(PQ.length){goStep(3)}else{toast('Upload CSV dulu!','warn')}" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm">Lanjut ke Step 3: Edit Soal →</button>
+<button onclick="if(PQ.length){goStep(3)}else{toast('Upload CSV dulu!','warn')}" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm">Lanjut ke Step 3 →</button>
 </div>
 </div>
 
 <!-- STEP 3: EDIT SOAL -->
 <div id="step3" class="hidden space-y-5 fade">
-<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 3: Review & Edit Soal</h3><p class="text-xs text-slate-500">Periksa, edit, tambah, atau hapus soal sebelum publish</p></div>
+<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 3: Review & Edit Soal</h3><p class="text-xs text-slate-500">Periksa, edit, tambah, hapus soal</p></div>
 <div class="bg-white rounded-xl border p-4">
 <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b pb-2">
 <div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-600">Total: <span id="s3-tot" class="text-brand-800 text-sm">0</span> soal</span></div>
-<div class="flex gap-2"><button onclick="addQ()" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg text-[10px] transition">+ Tambah Soal</button></div>
+<div class="flex gap-2"><button onclick="addQ()" class="px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg text-[10px] transition">+ Tambah</button></div>
 </div>
 <div id="s3-list" class="space-y-2 max-h-[400px] overflow-y-auto sb pr-1"></div>
 </div>
 <div class="flex flex-wrap gap-3">
 <button onclick="goStep(2)" class="px-5 py-2.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-sm transition">← Kembali</button>
-<button onclick="if(PQ.length){goStep(4)}else{toast('Tidak ada soal!','warn')}" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm">Lanjut ke Step 4: Publish →</button>
+<button onclick="if(PQ.length){goStep(4)}else{toast('Kosong!','warn')}" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-extrabold rounded-xl shadow transition text-sm">Lanjut ke Step 4 →</button>
 </div>
 </div>
 
 <!-- STEP 4: PUBLISH -->
 <div id="step4" class="hidden space-y-5 fade">
-<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 4: Publish Kuis</h3><p class="text-xs text-slate-500">Review final dan generate link kuis</p></div>
+<div class="text-center mb-2"><h3 class="text-lg font-extrabold text-slate-800">Step 4: Publish Kuis</h3><p class="text-xs text-slate-500">Review final dan generate link</p></div>
 <div class="bg-white rounded-xl border p-5">
-<h4 class="text-sm font-extrabold text-slate-800 mb-3">📋 Ringkasan Kuis</h4>
+<h4 class="text-sm font-extrabold text-slate-800 mb-3">📋 Ringkasan</h4>
 <div id="s4-summary" class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs"></div>
 </div>
 <div class="flex flex-wrap gap-3">
@@ -223,7 +215,7 @@
 </div>
 </div>
 
-</div><!-- end tab-create -->
+</div>
 
 <!-- TAB MY QUIZZES -->
 <div id="tab-myq" class="gtc hidden"><div id="ql" class="space-y-3"><p class="text-sm text-slate-400 italic">Memuat...</p></div></div>
@@ -247,26 +239,40 @@
 
 <!-- TAB FORMAT CSV -->
 <div id="tab-fmt" class="gtc hidden space-y-5">
+<div class="bg-rose-50 border-2 border-rose-300 rounded-2xl p-5">
+<h3 class="text-base font-extrabold text-rose-900 mb-2 flex items-center gap-2">⚠️ PENTING: Pemisah Kolom = Backslash <span class="font-mono bg-white px-2 py-0.5 rounded border">\</span></h3>
+<p class="text-sm text-rose-800">File CSV WAJIB menggunakan tanda <strong>backslash (\)</strong> sebagai pemisah antar kolom, <strong>BUKAN koma (,)</strong>. Ini untuk menghindari error parsing ketika teks pertanyaan mengandung koma.</p>
+</div>
 <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
-<h3 class="text-base font-extrabold text-blue-900 mb-3">📘 Format CSV (10 Kolom)</h3>
-<div class="overflow-x-auto sb"><table class="w-full text-[11px] border-collapse min-w-[600px]"><thead><tr class="bg-blue-100"><th class="border border-blue-300 px-2 py-1.5 text-left">Kolom</th><th class="border border-blue-300 px-2 py-1.5 text-left">Keterangan</th><th class="border border-blue-300 px-2 py-1.5 text-left">Contoh</th></tr></thead><tbody class="text-blue-900">
-<tr><td class="border border-blue-200 px-2 py-1 font-bold">bab</td><td class="border border-blue-200 px-2 py-1">Label bab</td><td class="border border-blue-200 px-2 py-1">Bab 1: Fotosintesis</td></tr>
-<tr><td class="border border-blue-200 px-2 py-1 font-bold">type</td><td class="border border-blue-200 px-2 py-1">PG / BS / AN</td><td class="border border-blue-200 px-2 py-1">PG</td></tr>
-<tr><td class="border border-blue-200 px-2 py-1 font-bold">difficulty</td><td class="border border-blue-200 px-2 py-1">mudah / sedang / sulit</td><td class="border border-blue-200 px-2 py-1">sedang</td></tr>
-<tr><td class="border border-blue-200 px-2 py-1 font-bold">question</td><td class="border border-blue-200 px-2 py-1">Teks soal</td><td class="border border-blue-200 px-2 py-1">Apa ibu kota RI?</td></tr>
-<tr><td class="border border-blue-200 px-2 py-1 font-bold">option_a</td><td class="border border-blue-200 px-2 py-1">PG: Opsi A | BS: BENAR | AN: kata jawaban</td><td class="border border-blue-200 px-2 py-1">Jakarta / BENAR / MAKKIYAH</td></tr>
-<tr><td class="border border-blue-200 px-2 py-1 font-bold">option_b..d</td><td class="border border-blue-200 px-2 py-1">PG: Opsi B-D | BS: SALAH + kosong</td><td class="border border-blue-200 px-2 py-1">Bandung,Surabaya,Medan</td></tr>
-<tr><td class="border border-blue-200 px-2 py-1 font-bold">answer</td><td class="border border-blue-200 px-2 py-1">PG:0-3 | BS:0/1 | AN:kata jawaban</td><td class="border border-blue-200 px-2 py-1">0 / MAKKIYAH</td></tr>
-<tr><td class="border border-blue-200 px-2 py-1 font-bold">discussion</td><td class="border border-blue-200 px-2 py-1">Pembahasan</td><td class="border border-blue-200 px-2 py-1">Jakarta ibu kota RI.</td></tr>
+<h3 class="text-base font-extrabold text-blue-900 mb-3">📘 Format CSV (10 Kolom, Pemisah \)</h3>
+<div class="overflow-x-auto sb"><table class="w-full text-[11px] border-collapse min-w-[600px]"><thead><tr class="bg-blue-100"><th class="border border-blue-300 px-2 py-1.5 text-left">No</th><th class="border border-blue-300 px-2 py-1.5 text-left">Kolom</th><th class="border border-blue-300 px-2 py-1.5 text-left">Keterangan</th><th class="border border-blue-300 px-2 py-1.5 text-left">Contoh</th></tr></thead><tbody class="text-blue-900">
+<tr><td class="border border-blue-200 px-2 py-1 text-center">1</td><td class="border border-blue-200 px-2 py-1 font-bold">bab</td><td class="border border-blue-200 px-2 py-1">Label bab</td><td class="border border-blue-200 px-2 py-1">Bab 1: Fotosintesis</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 text-center">2</td><td class="border border-blue-200 px-2 py-1 font-bold">type</td><td class="border border-blue-200 px-2 py-1">PG / BS / AN</td><td class="border border-blue-200 px-2 py-1">PG</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 text-center">3</td><td class="border border-blue-200 px-2 py-1 font-bold">difficulty</td><td class="border border-blue-200 px-2 py-1">mudah / sedang / sulit</td><td class="border border-blue-200 px-2 py-1">sedang</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 text-center">4</td><td class="border border-blue-200 px-2 py-1 font-bold">question</td><td class="border border-blue-200 px-2 py-1">Teks soal (bebas pakai koma!)</td><td class="border border-blue-200 px-2 py-1">Apa ibu kota RI, dan Malaysia?</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 text-center">5</td><td class="border border-blue-200 px-2 py-1 font-bold">option_a</td><td class="border border-blue-200 px-2 py-1">PG: Opsi A | BS: BENAR | AN: kata jawaban</td><td class="border border-blue-200 px-2 py-1">Jakarta / BENAR / MAKKIYAH</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 text-center">6-8</td><td class="border border-blue-200 px-2 py-1 font-bold">option_b/c/d</td><td class="border border-blue-200 px-2 py-1">PG: Opsi B-D | BS: SALAH+kosong</td><td class="border border-blue-200 px-2 py-1">Bandung / SALAH / kosong</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 text-center">9</td><td class="border border-blue-200 px-2 py-1 font-bold">answer</td><td class="border border-blue-200 px-2 py-1">PG:0-3 | BS:0/1 | AN:kata</td><td class="border border-blue-200 px-2 py-1">0 / MAKKIYAH</td></tr>
+<tr><td class="border border-blue-200 px-2 py-1 text-center">10</td><td class="border border-blue-200 px-2 py-1 font-bold">discussion</td><td class="border border-blue-200 px-2 py-1">Pembahasan</td><td class="border border-blue-200 px-2 py-1">Jakarta ibu kota RI.</td></tr>
 </tbody></table></div></div>
-<div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-<h3 class="text-sm font-extrabold text-amber-900 mb-2">📋 Contoh CSV</h3>
-<pre class="bg-white p-3 rounded-xl border text-[10px] text-amber-900 max-h-40 overflow-auto sb whitespace-pre-wrap">bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion
-Bab 1,PG,mudah,Surah Al-Insyirah tergolong?,Madaniyah,Makkiyah,Kufiyah,Syamiyah,1,Makkiyah karena turun di Mekah.
-Bab 1,BS,sedang,Al-Insyirah terdiri 8 ayat.,BENAR,SALAH,,,0,BENAR.
-Bab 2,AN,sulit,Susun nama Asmaulhusna Maha Pelindung:,ALWALIY,,,,ALWALIY,Jawabannya ALWALIY.</pre>
-<button id="bdl" class="mt-3 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition">⬇️ Download Template</button>
-</div></div>
+
+<div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
+<h3 class="text-sm font-extrabold text-emerald-900 mb-2">✅ Contoh CSV yang BENAR (pemisah \)</h3>
+<pre class="bg-white p-3 rounded-xl border text-[10px] text-emerald-900 max-h-48 overflow-auto sb whitespace-pre">bab\type\difficulty\question\option_a\option_b\option_c\option_d\answer\discussion
+Bab 1\PG\mudah\Surah Al-Insyirah tergolong surah?\Madaniyah\Makkiyah\Kufiyah\Syamiyah\1\Makkiyah karena turun di Mekah, bukan di Madinah.
+Bab 1\BS\sedang\Al-Insyirah terdiri dari 8 ayat.\BENAR\SALAH\\\0\Pernyataan BENAR.
+Bab 2\AN\sulit\Susun huruf jadi Asmaulhusna Maha Pelindung, Maha Penolong:\ALWALIY\\\\ALWALIY\Jawabannya ALWALIY.</pre>
+<p class="text-[11px] text-emerald-700 mt-2 font-semibold">💡 Perhatikan: Ada koma di dalam teks pertanyaan — tetap aman karena pemisah kolom pakai \</p>
+<button id="bdl" class="mt-3 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition">⬇️ Download Template CSV</button>
+</div>
+
+<div class="bg-rose-50 border border-rose-200 rounded-2xl p-5">
+<h3 class="text-sm font-extrabold text-rose-900 mb-2">❌ Contoh CSV yang SALAH (jangan pakai koma!)</h3>
+<pre class="bg-white p-3 rounded-xl border text-[10px] text-rose-900 max-h-32 overflow-auto sb whitespace-pre">bab,type,difficulty,question,option_a...
+Bab 1,PG,mudah,"Apa ibu kota, negara kita?",Jakarta,...  ❌ Ribet, harus pakai kutip</pre>
+<p class="text-[11px] text-rose-700 mt-2">Format lama dengan koma (,) sering error jika teks mengandung koma. Gunakan backslash (\) saja!</p>
+</div>
+</div>
 
 </div></div></div>
 
@@ -322,7 +328,7 @@ Bab 2,AN,sulit,Susun nama Asmaulhusna Maha Pelindung:,ALWALIY,,,,ALWALIY,Jawaban
 </div>
 
 </main>
-<footer class="bg-slate-800 text-slate-400 text-[10px] py-3 text-center mt-auto border-t border-slate-700">&copy; 2025 Platform Kuis Interaktif</footer>
+<footer class="bg-slate-800 text-slate-400 text-[10px] py-3 text-center mt-auto border-t border-slate-700">&copy; 2025 Platform Kuis Interaktif — CSV Backslash Separator</footer>
 
 <script>
 const FC={apiKey:"AIzaSyCvbtOHMYF5QGbw74TcHTT5WIPJRfTbQ9c",authDomain:"penilaian-harian-68ef6.firebaseapp.com",projectId:"penilaian-harian-68ef6",storageBucket:"penilaian-harian-68ef6.firebasestorage.app",messagingSenderId:"1063088378595",appId:"1:1063088378595:web:eeea2d92555e3e486d2bd6",measurementId:"G-GBXLYYC98L"};
@@ -341,7 +347,7 @@ function showL(t='Memuat...'){EL('ltx').textContent=t;EL('lov').classList.remove
 function hideL(){EL('lov').classList.add('hidden')}
 
 // DIFFICULTY SYNC
-function syncDiff(changed){
+function syncDiff(){
     const e=parseInt(EL('pct-e').value)||0,m=parseInt(EL('pct-m').value)||0,h=parseInt(EL('pct-h').value)||0;
     const sum=e+m+h;
     EL('pct-e-val').textContent=e+'%';EL('pct-m-val').textContent=m+'%';EL('pct-h-val').textContent=h+'%';
@@ -358,33 +364,40 @@ function genPrompt(){
     const pg=parseInt(EL('ai-pg').value)||0,bs=parseInt(EL('ai-bs').value)||0,an=parseInt(EL('ai-an').value)||0;
     const total=pg+bs+an;
     const e=parseInt(EL('pct-e').value)||0,m=parseInt(EL('pct-m').value)||0,h=parseInt(EL('pct-h').value)||0;
-    if(e+m+h!==100){toast('Total distribusi kesulitan harus 100%!','warn');return}
+    if(e+m+h!==100){toast('Total kesulitan harus 100%!','warn');return}
     if(total===0){toast('Jumlah soal minimal 1!','warn');return}
     const pgE=Math.round(pg*e/100),pgM=Math.round(pg*m/100),pgH=pg-pgE-pgM;
     const bsE=Math.round(bs*e/100),bsM=Math.round(bs*m/100),bsH=bs-bsE-bsM;
     const anE=Math.round(an*e/100),anM=Math.round(an*m/100),anH=an-anE-anM;
 
-    const prompt=`Buatkan file CSV UTF-8 untuk kuis interaktif.
+    const prompt=`Buatkan file CSV UTF-8 untuk kuis interaktif dengan format khusus:
 
-HEADER CSV (wajib 10 kolom, urutan persis ini):
-bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion
+⚠️ ATURAN PALING PENTING - PEMISAH KOLOM:
+Gunakan tanda BACKSLASH ( \\ ) sebagai pemisah antar kolom, BUKAN koma (,).
+Alasan: Teks pertanyaan sering mengandung koma yang bisa menyebabkan error parsing.
+
+FORMAT HEADER CSV (wajib 10 kolom, pisahkan dengan \\):
+bab\\type\\difficulty\\question\\option_a\\option_b\\option_c\\option_d\\answer\\discussion
 
 PENJELASAN TIAP KOLOM:
-- bab: Label topik, contoh "Bab 1: Nama Topik"
-- type: Tipe soal → PG (Pilihan Ganda), BS (Benar/Salah), AN (Anagram/Susun Kata)
-- difficulty: mudah / sedang / sulit
-- question: Teks soal lengkap
-- option_a sampai option_d:
-  * PG: Isi opsi A, B, C, D (4 pilihan jawaban)
-  * BS: option_a="BENAR", option_b="SALAH", option_c dan option_d KOSONG
-  * AN: option_a=KATA JAWABAN huruf besar tanpa spasi (contoh: MAKKIYAH). option_b,c,d KOSONG
-- answer:
-  * PG: Index jawaban benar (0=A, 1=B, 2=C, 3=D)
-  * BS: 0 jika jawabannya BENAR, 1 jika jawabannya SALAH
-  * AN: Kata jawaban sama persis dengan option_a
-- discussion: Pembahasan edukatif
+1. bab = Label topik. Contoh: "Bab 1: Nama Topik"
+2. type = Tipe soal:
+   - PG = Pilihan Ganda (4 opsi A/B/C/D)
+   - BS = Benar/Salah
+   - AN = Anagram/Susun Kata
+3. difficulty = Tingkat kesulitan: mudah / sedang / sulit
+4. question = Teks pertanyaan lengkap (BOLEH pakai koma karena pemisah kolom pakai \\)
+5. option_a s/d option_d:
+   - PG: Isi keempat opsi jawaban A, B, C, D
+   - BS: option_a="BENAR", option_b="SALAH", option_c dan option_d KOSONG
+   - AN: option_a=KATA JAWABAN huruf besar tanpa spasi (contoh: MAKKIYAH). option_b/c/d KOSONG
+6. answer:
+   - PG: Index jawaban benar (0=A, 1=B, 2=C, 3=D)
+   - BS: 0 jika BENAR, 1 jika SALAH
+   - AN: Kata jawaban sama persis dengan option_a
+7. discussion = Pembahasan edukatif
 
-DETAIL SOAL YANG HARUS DIBUAT:
+DETAIL SOAL YANG DIMINTA:
 📚 Mata Pelajaran: ${subj}
 🎓 Kelas: ${kls}
 📖 Topik/Bab: ${topics}
@@ -400,27 +413,27 @@ DETAIL SOAL YANG HARUS DIBUAT:
 │ TOTAL    │  ${String(total).padStart(3)}  │  ${String(pgE+bsE+anE).padStart(3)}   │ ${String(pgM+bsM+anM).padStart(3)}   │ ${String(pgH+bsH+anH).padStart(3)}   │
 └──────────┴───────┴────────┴───────┴───────┘
 
-ATURAN PENTING:
-1. Jika teks mengandung koma, bungkus SELURUH sel dengan tanda kutip ganda ("...")
-2. Setiap baris HARUS punya tepat 10 kolom dipisahkan koma
-3. Untuk AN: option_a WAJIB berisi KATA JAWABAN LENGKAP (huruf besar, tanpa spasi). Contoh: MAKKIYAH. JANGAN isi huruf acak. Sistem akan mengacak otomatis.
-4. Untuk AN: Kata jawaban di option_a dan answer HARUS SAMA PERSIS
-5. Untuk BS: option_a selalu "BENAR", option_b selalu "SALAH"
-6. Pembahasan harus edukatif dan menjelaskan MENGAPA jawaban tersebut benar
-7. Soal harus bervariasi dan mencakup semua topik/bab yang disebutkan
-8. Output HANYA isi file CSV saja, TANPA markdown, TANPA penjelasan, TANPA blok kode
+CONTOH FORMAT OUTPUT YANG BENAR:
+bab\\type\\difficulty\\question\\option_a\\option_b\\option_c\\option_d\\answer\\discussion
+Bab 1\\PG\\mudah\\Apa ibu kota Indonesia, negara kita?\\Jakarta\\Bandung\\Surabaya\\Medan\\0\\Jakarta adalah ibu kota RI.
+Bab 1\\BS\\sedang\\Indonesia merdeka tahun 1945.\\BENAR\\SALAH\\\\\\0\\BENAR. Merdeka 17 Agustus 1945.
+Bab 2\\AN\\sulit\\Susun huruf jadi nama Asmaulhusna Maha Pelindung:\\ALWALIY\\\\\\\\ALWALIY\\Jawabannya ALWALIY.
 
-Langsung mulai dari baris header CSV!`;
+ATURAN PENTING:
+1. Pemisah kolom WAJIB backslash tunggal ( \\ ), TIDAK BOLEH koma
+2. Setiap baris HARUS tepat 10 kolom (9 backslash sebagai pemisah)
+3. Untuk kolom kosong, tulis backslash langsung tanpa spasi (contoh: ...\\\\\\...)
+4. TIDAK PERLU tanda kutip untuk teks yang mengandung koma (karena pemisahnya bukan koma)
+5. Untuk AN: option_a HARUS berisi kata jawaban lengkap huruf besar tanpa spasi
+6. Untuk BS: option_a="BENAR", option_b="SALAH", sisanya kosong
+7. Untuk PG: isi keempat opsi A,B,C,D di option_a s/d option_d
+8. Output HANYA isi CSV saja, TANPA markdown, TANPA blok kode, TANPA penjelasan
+
+Langsung mulai dari baris header!`;
 
     EL('prompt-out').value=prompt;
     EL('prompt-box').classList.remove('hidden');
-
-    const encodedPrompt=encodeURIComponent(prompt);
-    EL('link-chatgpt').href=`https://chatgpt.com/?q=${encodedPrompt.substring(0,3000)}`;
-    EL('link-gemini').href=`https://gemini.google.com/app?q=${encodedPrompt.substring(0,3000)}`;
-    EL('link-claude').href=`https://claude.ai/new`;
-
-    toast('Prompt berhasil di-generate! Copy dan paste ke AI pilihan Anda.','success');
+    toast('Prompt digenerate! Copy dan paste ke AI.','success');
 }
 
 // WIZARD STEPS
@@ -435,25 +448,62 @@ function goStep(n){
     if(n===4)renderS4();
 }
 
-// CSV
+// ============ CSV PARSER DENGAN BACKSLASH SEPARATOR ============
 function parseCSV(text){
-    const lines=[];let cur='',inQ=false;
-    for(let i=0;i<text.length;i++){const ch=text[i];if(ch==='"'){if(inQ&&i+1<text.length&&text[i+1]==='"'){cur+='"';i++}else inQ=!inQ}else if((ch==='\n'||ch==='\r')&&!inQ){if(cur.trim())lines.push(cur);cur='';if(ch==='\r'&&i+1<text.length&&text[i+1]==='\n')i++}else cur+=ch}
-    if(cur.trim())lines.push(cur);if(lines.length<2)return[];
-    function spl(l){const cols=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"'){if(q&&i+1<l.length&&l[i+1]==='"'){c+='"';i++}else q=!q}else if(ch===','&&!q){cols.push(c.trim());c=''}else c+=ch}cols.push(c.trim());return cols}
-    const hdr=spl(lines[0]).map(h=>h.toLowerCase().replace(/[^a-z0-9_]/g,''));const qs=[];
+    // Normalize line endings
+    text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+    const lines=text.split('\n').filter(l=>l.trim().length>0);
+    if(lines.length<2)return[];
+    
+    // Split line by backslash separator
+    function splitByBackslash(line){
+        return line.split('\\').map(c=>c.trim());
+    }
+    
+    // Parse header
+    const hdr=splitByBackslash(lines[0]).map(h=>h.toLowerCase().replace(/[^a-z0-9_]/g,''));
+    const qs=[];
+    
     for(let i=1;i<lines.length;i++){
-        const cols=spl(lines[i]);if(cols.length<5)continue;
-        const row={};hdr.forEach((h,idx)=>{row[h]=cols[idx]||''});
-        const type=(row.type||'').toUpperCase().trim();if(!['PG','BS','AN'].includes(type))continue;
+        const cols=splitByBackslash(lines[i]);
+        if(cols.length<5)continue; // Skip incomplete rows
+        
+        const row={};
+        hdr.forEach((h,idx)=>{row[h]=cols[idx]||''});
+        
+        const type=(row.type||'').toUpperCase().trim();
+        if(!['PG','BS','AN'].includes(type))continue;
+        
         const diff=['mudah','sedang','sulit'].includes((row.difficulty||'').toLowerCase())?row.difficulty.toLowerCase():'sedang';
-        const q={id:i,bab:row.bab||'Umum',type,difficulty:diff,q:row.question||'',discussion:row.discussion||''};
-        if(type==='PG'){q.options=[row.option_a||'',row.option_b||'',row.option_c||'',row.option_d||''].filter(o=>o);q.answer=parseInt(row.answer)||0}
-        else if(type==='BS'){q.options=[row.option_a||'BENAR',row.option_b||'SALAH'];q.answer=parseInt(row.answer)||0}
-        else{let w=(row.answer||row.option_a||'').toUpperCase().replace(/[^A-Z]/g,'');if(!w&&row.option_a){const p=row.option_a.split(',').map(l=>l.trim().toUpperCase()).filter(l=>l.length===1);w=p.length>1?p.join(''):row.option_a.toUpperCase().replace(/[^A-Z]/g,'')}q.answer=w;q.letters=w.split('')}
+        
+        const q={
+            id:i,
+            bab:row.bab||'Umum',
+            type,
+            difficulty:diff,
+            q:row.question||'',
+            discussion:row.discussion||''
+        };
+        
+        if(type==='PG'){
+            q.options=[row.option_a||'',row.option_b||'',row.option_c||'',row.option_d||''].filter(o=>o);
+            q.answer=parseInt(row.answer)||0;
+        }
+        else if(type==='BS'){
+            q.options=[row.option_a||'BENAR',row.option_b||'SALAH'];
+            q.answer=parseInt(row.answer)||0;
+        }
+        else{
+            // AN: kata jawaban di option_a atau answer
+            let w=(row.answer||row.option_a||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+            q.answer=w;
+            q.letters=w.split('');
+        }
         qs.push(q);
-    }return qs;
+    }
+    return qs;
 }
+
 function prepQ(qs){let sh=shuf(qs);sh=sh.map(q=>{if(q.type==='PG'){const ix=q.options.map((o,i)=>({t:o,ok:i===q.answer}));const s=shuf(ix);return{...q,options:s.map(o=>o.t),answer:s.findIndex(o=>o.ok)}}if(q.type==='AN')return{...q,shuffledLetters:shuf(q.letters)};return q});AQ=sh;UA={};CI=0;AI=[]}
 
 // CSV UPLOAD
@@ -462,16 +512,24 @@ csvDrop.ondragover=e=>{e.preventDefault();csvDrop.classList.add('border-brand-50
 csvDrop.ondrop=e=>{e.preventDefault();csvDrop.classList.remove('border-brand-500','bg-brand-50');if(e.dataTransfer.files.length)handleCSV(e.dataTransfer.files[0])};
 csvF.onchange=e=>{if(e.target.files.length)handleCSV(e.target.files[0])};
 function handleCSV(file){
-    if(!file.name.endsWith('.csv')){toast('Harus .csv','error');return}
+    if(!file.name.endsWith('.csv')&&!file.name.endsWith('.txt')){toast('File harus .csv atau .txt','error');return}
     const r=new FileReader();r.onload=e=>{
-        PQ=parseCSV(e.target.result);if(!PQ.length){toast('Tidak ada soal valid!','error');return}
+        const rawText=e.target.result;
+        // Deteksi jika masih pakai koma sebagai separator
+        const firstLine=rawText.split('\n')[0]||'';
+        if(!firstLine.includes('\\')&&firstLine.includes(',')){
+            toast('⚠️ File CSV terdeteksi masih pakai koma! Ubah pemisah kolom ke backslash (\\) terlebih dahulu.','warn');
+            return;
+        }
+        PQ=parseCSV(rawText);
+        if(!PQ.length){toast('Tidak ada soal valid! Periksa format & pemisah (\\)','error');return}
         EL('csv-info').classList.remove('hidden');EL('csv-fn').textContent=file.name;
         const pg=PQ.filter(q=>q.type==='PG').length,bs=PQ.filter(q=>q.type==='BS').length,an=PQ.filter(q=>q.type==='AN').length;
         const eC=PQ.filter(q=>q.difficulty==='mudah').length,mC=PQ.filter(q=>q.difficulty==='sedang').length,hC=PQ.filter(q=>q.difficulty==='sulit').length;
         EL('csv-st').innerHTML=`<span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold">PG:${pg}</span><span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold">BS:${bs}</span><span class="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded text-[9px] font-bold">AN:${an}</span><span class="px-1.5 py-0.5 dM rounded text-[9px] font-bold">Mudah:${eC}</span><span class="px-1.5 py-0.5 dS rounded text-[9px] font-bold">Sedang:${mC}</span><span class="px-1.5 py-0.5 dH rounded text-[9px] font-bold">Sulit:${hC}</span><span class="px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded text-[9px] font-bold">Total:${PQ.length}</span>`;
         const pv=EL('csv-pv');let h='<div class="space-y-1">';PQ.slice(0,5).forEach((q,i)=>{const dc=q.difficulty==='mudah'?'dM':q.difficulty==='sulit'?'dH':'dS';h+=`<div class="p-1.5 bg-white rounded border text-[10px]"><span class="font-bold text-brand-800">${i+1}.</span>[${q.type}]<span class="px-1 py-0.5 rounded ${dc} text-[8px] font-bold ml-1">${q.difficulty}</span> ${q.q.substring(0,70)}${q.q.length>70?'...':''}</div>`});
         if(PQ.length>5)h+=`<p class="text-[10px] text-slate-400 italic">+${PQ.length-5} lainnya</p>`;h+='</div>';pv.innerHTML=h;
-        toast(`${PQ.length} soal diparse!`,'success');
+        toast(`✅ ${PQ.length} soal berhasil diparse!`,'success');
     };r.readAsText(file,'UTF-8');
 }
 
@@ -494,9 +552,8 @@ function tgST(){const t=EL('st').value;EL('spg').classList.toggle('hidden',t!=='
 function svSe(){const i=eIdx;if(i<0)return;const t=EL('st').value;PQ[i]={...PQ[i],bab:EL('sb').value,type:t,difficulty:EL('sd').value,q:EL('sq').value,discussion:EL('sdi').value};
 if(t==='PG'){PQ[i].options=[EL('soa').value,EL('sob').value,EL('soc').value,EL('sod').value].filter(o=>o);PQ[i].answer=parseInt(EL('sap').value)||0;delete PQ[i].letters}
 else if(t==='BS'){PQ[i].options=['BENAR','SALAH'];PQ[i].answer=parseInt(EL('sab').value)||0;delete PQ[i].letters}
-else{const w=EL('saa').value.toUpperCase().replace(/[^A-Z]/g,'');PQ[i].answer=w;PQ[i].letters=w.split('');PQ[i].options=[]}
+else{const w=EL('saa').value.toUpperCase().replace(/[^A-Z0-9]/g,'');PQ[i].answer=w;PQ[i].letters=w.split('');PQ[i].options=[]}
 EL('m-se').classList.add('hidden');renderS3();toast('Disimpan!','success')}
-function saveEd(){EL('m-edit').classList.add('hidden');renderS3();toast(`${PQ.length} soal OK!`,'success')}
 
 // STEP 4: SUMMARY
 function renderS4(){
@@ -545,8 +602,17 @@ EL('btn-pub').onclick=async()=>{
     const base=location.origin+location.pathname;EL('o-link').value=`${base}?code=${code}`;EL('o-code').value=code;EL('lnk-box').classList.remove('hidden');toast('Dipublikasikan!','success');loadQ();loadAS()}catch(e){toast('Gagal: '+e.message,'error')}finally{btn.disabled=false;btn.innerHTML='🚀 Publish & Generate Link'}
 };
 
-// TEMPLATE
-EL('bdl').onclick=()=>{const t=`bab,type,difficulty,question,option_a,option_b,option_c,option_d,answer,discussion\nBab 1,PG,mudah,Apa ibu kota Indonesia?,Jakarta,Bandung,Surabaya,Medan,0,Jakarta ibu kota RI.\nBab 1,BS,sedang,Indonesia merdeka 1945.,BENAR,SALAH,,,0,BENAR.\nBab 1,AN,sulit,Susun nama ibu kota:,JAKARTA,,,,JAKARTA,JAKARTA.`;const b=new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='template.csv';a.click();URL.revokeObjectURL(u);toast('Diunduh!','success')};
+// TEMPLATE DOWNLOAD - PAKAI BACKSLASH
+EL('bdl').onclick=()=>{
+    const t=`bab\\type\\difficulty\\question\\option_a\\option_b\\option_c\\option_d\\answer\\discussion
+Bab 1: Contoh\\PG\\mudah\\Apa ibu kota Indonesia, negara tercinta kita?\\Jakarta\\Bandung\\Surabaya\\Medan\\0\\Jakarta adalah ibu kota RI.
+Bab 1: Contoh\\PG\\sedang\\Pancasila memiliki berapa sila?\\4\\5\\6\\7\\1\\Pancasila memiliki 5 sila.
+Bab 1: Contoh\\BS\\mudah\\Indonesia merdeka tahun 1945.\\BENAR\\SALAH\\\\\\0\\BENAR. Merdeka 17 Agustus 1945.
+Bab 1: Contoh\\BS\\sulit\\UUD 1945 tidak pernah diamandemen.\\BENAR\\SALAH\\\\\\1\\SALAH. Diamandemen 4 kali.
+Bab 1: Contoh\\AN\\sedang\\Susun huruf menjadi nama ibu kota Indonesia:\\JAKARTA\\\\\\\\JAKARTA\\Jawabannya JAKARTA.
+Bab 1: Contoh\\AN\\sulit\\Susun huruf menjadi nama dasar negara:\\PANCASILA\\\\\\\\PANCASILA\\Jawabannya PANCASILA.`;
+    const b=new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='template_kuis_backslash.csv';a.click();URL.revokeObjectURL(u);toast('Template diunduh!','success')
+};
 
 // LOAD QUIZZES
 async function loadQ(){if(!CU)return;const list=EL('ql');list.innerHTML='<p class="text-sm text-slate-400">Memuat...</p>';
@@ -586,32 +652,19 @@ function renderAn(quiz,results){
 EL('btn-export').onclick=()=>{
     if(!analQuizData||!analResults.length){toast('Tidak ada data!','warn');return}
     const wb=XLSX.utils.book_new();const qs=analQuizData.questions||[];const kkm=analQuizData.kkm||75;
-
-    // Sheet 1: Ringkasan
     const s1Data=[['ANALISIS KUIS - '+analQuizData.title],[''],['Mata Pelajaran',analQuizData.subject||'-'],['Kelas',analQuizData.target||'-'],['KKM',kkm],['Total Soal',qs.length],['Total Peserta',analResults.length],['Rata-rata',analResults.length?Math.round(analResults.reduce((a,r)=>a+(r.score||0),0)/analResults.length):0],['Nilai Tertinggi',analResults.length?Math.max(...analResults.map(r=>r.score||0)):0],['Nilai Terendah',analResults.length?Math.min(...analResults.map(r=>r.score||0)):0],['Persentase Lulus',analResults.length?Math.round(analResults.filter(r=>r.score>=kkm).length/analResults.length*100)+'%':'0%']];
-    const ws1=XLSX.utils.aoa_to_sheet(s1Data);XLSX.utils.book_append_sheet(wb,ws1,'Ringkasan');
-
-    // Sheet 2: Peringkat Siswa
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s1Data),'Ringkasan');
     const s2Head=[['No','Nama','Kelas','Skor','Benar','Salah','Total','Status','Mudah','Sedang','Sulit']];
     const sorted=[...analResults].sort((a,b)=>(b.score||0)-(a.score||0));
-    sorted.forEach((r,i)=>{const db=r.diffBreakdown||{mudah:{c:0,t:0},sedang:{c:0,t:0},sulit:{c:0,t:0}};
-    s2Head.push([i+1,r.name||'',r.class||'',r.score||0,r.correct||0,r.wrong||0,r.total||0,r.score>=kkm?'LULUS':'REMEDIAL',`${db.mudah?.c||0}/${db.mudah?.t||0}`,`${db.sedang?.c||0}/${db.sedang?.t||0}`,`${db.sulit?.c||0}/${db.sulit?.t||0}`])});
-    const ws2=XLSX.utils.aoa_to_sheet(s2Head);XLSX.utils.book_append_sheet(wb,ws2,'Peringkat Siswa');
-
-    // Sheet 3: Analisis per Soal
-    const s3Head=[['No','Bab','Tipe','Kesulitan','Soal','Dijawab','Benar','Persen Benar','Kualitas']];
-    qs.forEach((q,i)=>{let ok=0,at=0;analResults.forEach(r=>{if(r.perQuestion&&r.perQuestion[i]!==undefined){at++;if(r.perQuestion[i])ok++}});const rate=at?Math.round(ok/at*100):null;
-    let ql='-';if(rate!==null){if(rate>=80)ql='Sangat Mudah';else if(rate>=60)ql='Baik';else if(rate>=40)ql='Cukup';else if(rate>=20)ql='Sulit';else ql='Sangat Sulit'}
-    s3Head.push([i+1,q.bab,q.type,q.difficulty,q.q,at,ok,rate!==null?rate+'%':'-',ql])});
-    const ws3=XLSX.utils.aoa_to_sheet(s3Head);XLSX.utils.book_append_sheet(wb,ws3,'Analisis Soal');
-
-    // Sheet 4: Distribusi Nilai
-    const s4Head=[['Rentang','Jumlah']];const bins=Array(10).fill(0);analResults.forEach(r=>{bins[Math.min(Math.floor((r.score||0)/10),9)]++});
-    ['0-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100'].forEach((l,i)=>s4Head.push([l,bins[i]]));
-    const ws4=XLSX.utils.aoa_to_sheet(s4Head);XLSX.utils.book_append_sheet(wb,ws4,'Distribusi Nilai');
-
+    sorted.forEach((r,i)=>{const db=r.diffBreakdown||{mudah:{c:0,t:0},sedang:{c:0,t:0},sulit:{c:0,t:0}};s2Head.push([i+1,r.name||'',r.class||'',r.score||0,r.correct||0,r.wrong||0,r.total||0,r.score>=kkm?'LULUS':'REMEDIAL',`${db.mudah?.c||0}/${db.mudah?.t||0}`,`${db.sedang?.c||0}/${db.sedang?.t||0}`,`${db.sulit?.c||0}/${db.sulit?.t||0}`])});
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s2Head),'Peringkat');
+    const s3Head=[['No','Bab','Tipe','Kesulitan','Soal','Dijawab','Benar','Persen','Kualitas']];
+    qs.forEach((q,i)=>{let ok=0,at=0;analResults.forEach(r=>{if(r.perQuestion&&r.perQuestion[i]!==undefined){at++;if(r.perQuestion[i])ok++}});const rate=at?Math.round(ok/at*100):null;let ql='-';if(rate!==null){if(rate>=80)ql='Sangat Mudah';else if(rate>=60)ql='Baik';else if(rate>=40)ql='Cukup';else if(rate>=20)ql='Sulit';else ql='Sangat Sulit'}s3Head.push([i+1,q.bab,q.type,q.difficulty,q.q,at,ok,rate!==null?rate+'%':'-',ql])});
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s3Head),'Analisis Soal');
+    const s4Head=[['Rentang','Jumlah']];const bins=Array(10).fill(0);analResults.forEach(r=>{bins[Math.min(Math.floor((r.score||0)/10),9)]++});['0-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100'].forEach((l,i)=>s4Head.push([l,bins[i]]));
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s4Head),'Distribusi Nilai');
     XLSX.writeFile(wb,`Analisis_${analQuizData.title||'Kuis'}_${new Date().toLocaleDateString('id-ID')}.xlsx`);
-    toast('File Excel berhasil diunduh!','success');
+    toast('Excel diunduh!','success');
 };
 
 // SISWA
@@ -634,7 +687,7 @@ prepQ(qs);EL('tq').textContent=AQ.length;showS('s-quiz');renderQz();renderGr();s
 
 function checkURL(){const p=new URLSearchParams(location.search);const c=p.get('code');if(c){EL('jc').value=c.toUpperCase();showS('s-join');setTimeout(()=>EL('bfnd').click(),500)}}
 
-// QUIZ RENDER
+// QUIZ
 EL('bgrd').onclick=()=>EL('gp').classList.toggle('hidden');
 EL('bp').onclick=()=>{if(CI>0){CI--;renderQz()}};EL('bn').onclick=()=>{if(CI<AQ.length-1){CI++;renderQz()}};
 EL('bf').onclick=()=>{const a=Object.keys(UA).filter(k=>UA[k]!==undefined&&UA[k]!=='').length;if(a<AQ.length&&!confirm(`Baru ${a}/${AQ.length}. Selesaikan?`))return;calcRes()};
@@ -659,7 +712,6 @@ function renderQz(){
 function getUI(sh,inp){const u=[];const t=[...inp];sh.forEach((l,i)=>{const m=t.indexOf(l);if(m!==-1){u.push(i);t.splice(m,1)}});return u}
 function renderGr(){const g=EL('qg');g.innerHTML='';AQ.forEach((q,i)=>{const a=UA[i]!==undefined&&UA[i]!=='';const c=i===CI;const b=document.createElement('button');b.className=`h-7 rounded-lg font-bold text-[9px] transition flex items-center justify-center border ${c?'ring-2 ring-gold-500 border-gold-500':''} ${a?'bg-brand-700 text-white border-brand-800':'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'}`;b.textContent=i+1;b.onclick=()=>{CI=i;renderQz();EL('gp').classList.add('hidden')};g.appendChild(b)})}
 
-// RESULT
 async function calcRes(){stopTmr();let ok=0;const pQ={};const oMap=AQ.map(q=>QM.questions.findIndex(oq=>oq.q===q.q&&oq.type===q.type));
 const dB={mudah:{c:0,t:0},sedang:{c:0,t:0},sulit:{c:0,t:0}};
 AQ.forEach((q,i)=>{const ua=UA[i];let correct=false;if(q.type==='PG'||q.type==='BS'){if(ua===q.answer)correct=true}else if(q.type==='AN'){if(ua&&ua.toUpperCase()===q.answer.toUpperCase())correct=true}
